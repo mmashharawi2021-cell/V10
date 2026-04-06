@@ -1256,169 +1256,159 @@
         <div id="userModal" class="fixed inset-0 z-[10000] hidden flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="closeUserModal"></div>
             <div
-                class="bg-white/90 backdrop-blur-2xl w-full max-w-lg rounded-[40px] shadow-2xl relative z-10 overflow-hidden border border-white/40 animate__animated animate__zoomIn animate__faster">
-                <div class="p-8 border-b border-gray-100 mb-2">
-                    <h3 id="userModalTitle" class="text-2xl font-bold text-gray-800">إضافة مستخدم جديد</h3>
+                class="bg-white/90 backdrop-blur-2xl w-full max-w-lg max-h-[90vh] flex flex-col rounded-3xl shadow-2xl relative z-10 overflow-hidden border border-white/40 animate__animated animate__zoomIn animate__faster">
+                <div class="p-4 md:p-5 border-b border-gray-200/60 shrink-0 flex justify-between items-center bg-white/50">
+                    <h3 id="userModalTitle" class="text-xl md:text-2xl font-bold text-gray-800">إضافة مستخدم جديد</h3>
+                    <button type="button" onclick="document.getElementById('closeUserModal').click()" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
 
-                <form id="userForm" class="p-8 space-y-5">
-                    <div class="grid grid-cols-1 gap-5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-gray-700 font-bold mb-2 mr-1">الاسم الكامل</label>
-                                <input type="text" id="userName" required
-                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                <form id="userForm" class="flex flex-col min-h-0 relative flex-1">
+                    <div class="p-4 md:p-5 overflow-y-auto space-y-4 relative no-scrollbar">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm">الاسم الكامل</label>
+                                    <input type="text" id="userName" required
+                                        class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm">اسم المستخدم</label>
+                                    <input type="text" id="userUsername" required placeholder="User123"
+                                        class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right text-sm">
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-bold mb-2 mr-1">اسم المستخدم</label>
-                                <input type="text" id="userUsername" required placeholder="User123"
-                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right">
+                                <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm">البريد الإلكتروني</label>
+                                <input type="email" id="userEmail" required
+                                    class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm">كلمة المرور</label>
+                                <input type="password" id="userPassword" placeholder="••••••••"
+                                    class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm">الدور</label>
+                                    <select id="userRole"
+                                        class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm">
+                                        <option value="viewer">مراقب (Viewer)</option>
+                                        <option value="admin">مدير (Admin)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm">المجال المكاني</label>
+                                    <input type="text" id="userGov" value="all" placeholder="all أو غزة، شمال غزة"
+                                        class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm">
+                                    <p class="text-[10px] text-gray-500 mt-1">اكتب all أو المحافظات مفصولة بفاصلة.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                                <span class="font-bold text-gray-700 text-sm">حالة الحساب</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="userActive" class="sr-only peer" checked>
+                                    <div
+                                        class="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                </label>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-gray-700 font-bold mb-2 mr-1">البريد الإلكتروني</label>
-                            <input type="email" id="userEmail" required
-                                class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-bold mb-2 mr-1">كلمة المرور</label>
-                            <input type="password" id="userPassword" placeholder="••••••••"
-                                class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
+
+                        <!-- قسم الصلاحيات التفصيلية -->
+                        <div class="space-y-3 pt-3 border-t border-gray-100">
+                            <h4 class="text-sm font-extrabold text-blue-800 flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved"></i> الصلاحيات التفصيلية
+                            </h4>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                                <!-- ظهور الصفحات -->
+                                <div class="space-y-1.5">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">ظهور الصفحات</p>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" id="perm_showHome"
+                                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            checked>
+                                        <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الرئيسية والخريطة</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" id="perm_showStats"
+                                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            checked>
+                                        <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الإحصائيات</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" id="perm_showFlow"
+                                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            checked>
+                                        <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">العرض والشرح</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" id="perm_showStyle"
+                                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            checked>
+                                        <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الهوية</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" id="perm_showPersonas"
+                                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            checked>
+                                        <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الشخصيات</span>
+                                    </label>
+                                </div>
+
+                                <!-- صلاحيات الخريطة والبيانات -->
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">الخريطة والبيانات</p>
+                                        <label class="flex items-center gap-2 cursor-pointer group mb-1.5">
+                                            <input type="checkbox" id="perm_canDraw"
+                                                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">رسم مساحات جديدة</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group mb-1.5">
+                                            <input type="checkbox" id="perm_canEditData"
+                                                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تعديل بيانات الحصر</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="perm_canEditStatus"
+                                                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تغيير حالة الإنجاز</span>
+                                        </label>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">الأدوات النظامية</p>
+                                        <label class="flex items-center gap-2 cursor-pointer group mb-1.5">
+                                            <input type="checkbox" id="perm_canExport"
+                                                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تصدير التقارير</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="perm_canManageUsers"
+                                                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">إدارة حسابات المستخدمين</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <div>
-                                <label class="block text-gray-700 font-bold mb-2 mr-1">الدور</label>
-                                <select id="userRole"
-                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                                    <option value="viewer">مراقب (Viewer)</option>
-                                    <option value="admin">مدير (Admin)</option>
+                                <label class="block text-gray-700 font-bold mb-1 mr-1 text-sm mt-2">الجنس</label>
+                                <select id="userGender"
+                                    class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm">
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-gray-700 font-bold mb-2 mr-1">المجال المكاني</label>
-                                <input type="text" id="userGov" value="all" placeholder="all أو غزة، شمال غزة"
-                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                                <p class="text-xs text-gray-500 mt-2">اكتب all أو محافظة واحدة أو عدة محافظات مفصولة بفاصلة.</p>
-                            </div>
-                        </div>
-                        <div
-                            class="flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                            <span class="font-bold text-gray-700">حالة الحساب</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="userActive" class="sr-only peer" checked>
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-blue-600">
-                                </div>
-                            </label>
                         </div>
                     </div>
 
-                    <!-- قسم الصلاحيات التفصيلية -->
-                    <div class="space-y-4 pt-4 border-t border-gray-100">
-                        <h4 class="text-lg font-extrabold text-blue-800 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved"></i> الصلاحيات التفصيلية
-                        </h4>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                            <!-- ظهور الصفحات -->
-                            <div class="space-y-2">
-                                <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">ظهور الصفحات
-                                </p>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showHome"
-                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked>
-                                    <span
-                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الرئيسية
-                                        والخريطة</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showStats"
-                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked>
-                                    <span
-                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الإحصائيات</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showFlow"
-                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked>
-                                    <span
-                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">العرض
-                                        والشرح</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showStyle"
-                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked>
-                                    <span
-                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الهوية</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showPersonas"
-                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked>
-                                    <span
-                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الشخصيات</span>
-                                </label>
-                            </div>
-
-                            <!-- صلاحيات الخريطة والبيانات -->
-                            <div class="space-y-4">
-                                <div>
-                                    <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">الخريطة
-                                        والبيانات</p>
-                                    <label class="flex items-center gap-3 cursor-pointer group mb-2">
-                                        <input type="checkbox" id="perm_canDraw"
-                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span
-                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">رسم
-                                            مساحات جديدة</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 cursor-pointer group mb-2">
-                                        <input type="checkbox" id="perm_canEditData"
-                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span
-                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تعديل
-                                            بيانات الحصر (الأعداد)</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" id="perm_canEditStatus"
-                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span
-                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تغيير
-                                            حالة الإنجاز</span>
-                                    </label>
-                                </div>
-
-                                <div>
-                                    <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">الأدوات
-                                        النظامية</p>
-                                    <label class="flex items-center gap-3 cursor-pointer group mb-2">
-                                        <input type="checkbox" id="perm_canExport"
-                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span
-                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تصدير
-                                            التقارير (PDF/Excel)</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" id="perm_canManageUsers"
-                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span
-                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">إدارة
-                                            حسابات المستخدمين</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 pt-6">
+                    <div class="px-4 py-3 md:px-5 md:py-4 bg-gray-50/90 border-t border-gray-200/60 shrink-0 flex gap-3 z-20">
                         <button type="submit"
-                            class="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">حفظ
-                            البيانات</button>
+                            class="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow-md transition-all text-sm">حفظ البيانات</button>
                         <button type="button" id="cancelUserBtn"
-                            class="px-8 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all">إلغاء</button>
+                            class="px-6 bg-white hover:bg-gray-100 text-gray-600 font-bold py-2.5 rounded-xl transition-all text-sm border border-gray-200 shadow-sm">إلغاء</button>
                     </div>
                 </form>
             </div>
@@ -1480,8 +1470,8 @@
         });
 
         function toggleAnalyticsPanel(type) {
-            const panels = { data: 'analyticsPanelData', ai: 'analyticsPanelAi' };
-            const btns   = { data: 'fabDataBtn', ai: 'fabAiBtn' };
+            const panels = { data: 'analyticsPanelData' };
+            const btns   = { data: 'fabDataBtn' };
             const panel  = document.getElementById(panels[type]);
             const btn    = document.getElementById(btns[type]);
             const isOpen = panel.classList.contains('panel-open');
@@ -1511,7 +1501,7 @@
                     if (type === 'geojson') {
                         window.analyticsData = JSON.parse(e.target.result);
                         nameEl.textContent = `✔ ${file.name} — ${window.analyticsData.features?.length || 0} عنصر مكاني`;
-                        generateAnalyticsFromData(window.analyticsData);
+                        showDataSummaryModal(file.name);
                     } else if (type === 'shapefile') {
                         nameEl.textContent = `${file.name} — يتطلب مكتبة shpjs لمعالجة Shapefile`;
                     }
@@ -1534,7 +1524,7 @@
                 .then(data => {
                     window.analyticsData = data;
                     nameEl.textContent = `✔ تم جلب البيانات — ${data.features?.length || 0} عنصر`;
-                    generateAnalyticsFromData(data);
+                    showDataSummaryModal(url);
                 })
                 .catch(err => {
                     nameEl.textContent = `⚠ تعذر جلب البيانات (تحقق من CORS): ${err.message}`;
@@ -1549,38 +1539,69 @@
             document.getElementById('analyticsUrl').value = '';
         }
 
-        function generateAnalyticsFromData(geojson) {
-            const features = geojson.features || [];
-            appendAiMessage('bot', `تم تحليل الملف: يحتوي على <strong>${features.length}</strong> عنصر مكاني. يمكنني الآن الإجابة على أسئلتك حول هذه البيانات.`);
+        function showDataSummaryModal(sourceName) {
+            const geojson = window.analyticsData || window.zoneGeoJsonData;
+            if (!geojson || !geojson.features) {
+                alert('لا توجد بيانات محملة حالياً.');
+                return;
+            }
+            
+            const features = geojson.features;
+            let totalZones = features.length;
+            let totalBldg = 0, totalCompleted = 0, totalUnits = 0, totalTeams = 0, totalEng = 0;
+            let govStats = {};
+            let statusDistribution = { 'مناطق حصر جديدة': 0, 'قيد الحصر': 0, 'تم الانتهاء': 0 };
+
+            features.forEach(f => {
+                let p = f.properties || {};
+                let bldg = parseInt(p["total_all"]) || parseInt(p["إجمالي_المباني"]) || 0;
+                let comp = parseInt(p["complete"]) || parseInt(p["المباني_المنجزة"]) || 0;
+                let units = parseInt(p["unit_count"]) || parseInt(p["عدد_الوحدات"]) || 0;
+                let teams = parseInt(p["عدد الفرق"]) || parseInt(p["teams_coun"]) || parseInt(p["عدد_الفرق"]) || 0;
+                let eng = parseInt(p["عدد المهندسين"]) || parseInt(p["engineers_"]) || parseInt(p["عدد_المهندسين"]) || 0;
+                let gov = p["governorat"] || p["Gov"] ? (p["governorat"] || p["Gov"]).trim() : "غير محدد";
+                let status = p["حالة الحصر"] || p["type_statu"] || p["حالة_الحصر"] || p.Status || "";
+                
+                totalBldg += bldg;
+                totalCompleted += comp;
+                totalUnits += units;
+                totalTeams += teams;
+                totalEng += eng;
+
+                if (status.includes('جديدة')) statusDistribution['مناطق حصر جديدة']++;
+                else if (status.includes('الحصر') || status.includes('العمل')) statusDistribution['قيد الحصر']++;
+                else if (status.includes('الانتهاء') || status.includes('مكتمل')) statusDistribution['تم الانتهاء']++;
+
+                if(!govStats[gov]) govStats[gov] = 0;
+                govStats[gov]++;
+            });
+
+            const progressPct = totalBldg > 0 ? ((totalCompleted / totalBldg) * 100).toFixed(1) : 0;
+
+            document.getElementById('fdm-title').textContent = sourceName || (window.analyticsData ? 'بيانات الملف المرفوع' : 'البيانات الافتراضية (zone.geojson)');
+            document.getElementById('fdm-zones').textContent = totalZones.toLocaleString();
+            document.getElementById('fdm-bldg').textContent = totalBldg.toLocaleString();
+            document.getElementById('fdm-comp').textContent = totalCompleted.toLocaleString();
+            document.getElementById('fdm-units').textContent = totalUnits.toLocaleString();
+            document.getElementById('fdm-teams').textContent = totalTeams.toLocaleString();
+            document.getElementById('fdm-eng').textContent = totalEng.toLocaleString();
+            
+            document.getElementById('fdm-progress').style.width = progressPct + '%';
+            document.getElementById('fdm-progress-text').textContent = progressPct + '%';
+
+            const govHtml = Object.entries(govStats).sort((a,b) => b[1] - a[1])
+                .map(([g, c]) => `<div class="flex justify-between border-b border-gray-200/50 py-1 last:border-0"><span class="text-gray-700 text-xs font-bold">${g}</span><span class="font-black text-blue-600 text-xs">${c} زون</span></div>`).join('');
+            document.getElementById('fdm-govs').innerHTML = govHtml || '<div class="text-gray-400 text-xs text-center py-2">لا توجد بيانات للمحافظات</div>';
+
+            document.getElementById('fdm-status-new').textContent = statusDistribution['مناطق حصر جديدة'];
+            document.getElementById('fdm-status-prog').textContent = statusDistribution['قيد الحصر'];
+            document.getElementById('fdm-status-comp').textContent = statusDistribution['تم الانتهاء'];
+            
+            document.getElementById('fileDetailsModal').classList.remove('hidden');
         }
 
-        // ======= مساعد الذكاء الاصطناعي =======
-        function sendAiMessage() {
-            const input = document.getElementById('aiChatInput');
-            const msg = input.value.trim();
-            if (!msg) return;
-            appendAiMessage('user', msg);
-            input.value = '';
-            // placeholder response — يُستبدل بـ API حقيقي لاحقاً
-            setTimeout(() => {
-                if (!window.analyticsData) {
-                    appendAiMessage('bot', 'يرجى تحميل ملف بيانات أولاً حتى أتمكن من تحليله والإجابة على أسئلتك.');
-                } else {
-                    appendAiMessage('bot', 'هذه الميزة تتطلب ربط مفتاح API (Google Gemini أو OpenAI). يرجى إضافة المفتاح في إعدادات النظام.');
-                }
-            }, 600);
-        }
-
-        function appendAiMessage(role, html) {
-            const box = document.getElementById('aiChatBox');
-            const div = document.createElement('div');
-            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            div.innerHTML = `<div class="${role === 'user'
-                ? 'bg-blue-500 text-white rounded-2xl rounded-tr-sm'
-                : 'bg-purple-100 text-purple-800 rounded-2xl rounded-tl-sm'} px-4 py-2 text-sm font-medium max-w-[85%]">
-                ${role === 'bot' ? '<i class="fa-solid fa-robot ml-1 text-xs"></i>' : ''}${html}</div>`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+        function closeFileDetailsModal() {
+            document.getElementById('fileDetailsModal').classList.add('hidden');
         }
     </script>
     <!-- شريط أدوات الإحصاء العائم (خارج صفحة process لأنها fixed) -->
@@ -1589,9 +1610,9 @@
             <i class="fa-solid fa-database"></i>
             <span class="fab-tooltip">مصادر البيانات</span>
         </button>
-        <button onclick="toggleAnalyticsPanel('ai')" id="fabAiBtn" class="fab-icon-btn" title="المساعد الذكي">
-            <i class="fa-solid fa-robot"></i>
-            <span class="fab-tooltip">المساعد الذكي</span>
+        <button onclick="showDataSummaryModal()" id="fabSummaryBtn" class="fab-icon-btn" title="ملخص البيانات">
+            <i class="fa-solid fa-file-contract"></i>
+            <span class="fab-tooltip">تفاصيل البيانات</span>
         </button>
     </div>
 
@@ -1640,23 +1661,89 @@
         </div>
     </div>
 
-    <!-- لوحة الذكاء الاصطناعي (body level) -->
-    <div id="analyticsPanelAi" class="analytics-slide-panel">
-        <div class="analytics-panel-header">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-robot text-purple-500"></i> المساعد الذكي</span>
-            <button onclick="toggleAnalyticsPanel('ai')" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <div class="flex flex-col gap-3 p-4">
-            <div id="aiChatBox" class="bg-white/40 rounded-xl p-3 overflow-y-auto flex flex-col gap-2 border border-gray-100 min-h-[200px] max-h-[320px]">
-                <div class="flex justify-start">
-                    <div class="bg-purple-100 text-purple-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs font-medium max-w-[90%]">
-                        <i class="fa-solid fa-robot ml-1 text-xs"></i> مرحباً! حمّل ملف بيانات أو اسألني ما تريد.
+    <!-- نافذة تفاصيل الملف المرفق -->
+    <div id="fileDetailsModal" class="fixed inset-0 z-[100000] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeFileDetailsModal()"></div>
+        <div class="bg-white/95 backdrop-blur-2xl w-full max-w-2xl rounded-3xl shadow-2xl relative z-10 overflow-hidden border border-white/40 flex flex-col max-h-[90vh] animate__animated animate__zoomIn animate__faster">
+            <div class="p-4 md:p-5 border-b border-gray-200/60 flex justify-between items-center bg-gray-50/50 shrink-0">
+                <h3 class="text-lg md:text-xl font-bold text-blue-800 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-blue-500"></i>
+                    ملخص بيانات الحصر المرفقة
+                </h3>
+                <button type="button" onclick="closeFileDetailsModal()" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-4 md:p-5 overflow-y-auto no-scrollbar space-y-4">
+                <div class="bg-blue-50 text-blue-800 p-3 rounded-xl border border-blue-100 flex items-center gap-3">
+                    <i class="fa-solid fa-file-contract text-xl opacity-70"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[10px] md:text-xs text-blue-600/70 font-bold mb-0.5">اسم الملف / المصدر</div>
+                        <div class="font-bold truncate text-sm" id="fdm-title" dir="ltr">--</div>
+                    </div>
+                </div>
+
+                <!-- Grid of stats -->
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 md:gap-3 text-center">
+                    <div class="bg-gray-50 p-2 md:p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-blue-500 mb-1"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <div class="text-xs font-bold text-gray-400 mb-1">الزونات</div>
+                        <div class="font-black text-gray-800 text-sm md:text-lg" id="fdm-zones">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-2 md:p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-purple-500 mb-1"><i class="fa-solid fa-building"></i></div>
+                        <div class="text-xs font-bold text-gray-400 mb-1">المباني</div>
+                        <div class="font-black text-gray-800 text-sm md:text-lg" id="fdm-bldg">0</div>
+                    </div>
+                    <div class="bg-emerald-50 p-2 md:p-3 rounded-xl border border-emerald-100 shadow-sm">
+                        <div class="text-emerald-500 mb-1"><i class="fa-solid fa-check-double"></i></div>
+                        <div class="text-xs font-bold text-gray-400 mb-1">منجز</div>
+                        <div class="font-black text-emerald-700 text-sm md:text-lg" id="fdm-comp">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-2 md:p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-orange-500 mb-1"><i class="fa-solid fa-door-open"></i></div>
+                        <div class="text-xs font-bold text-gray-400 mb-1">الوحدات</div>
+                        <div class="font-black text-gray-800 text-sm md:text-lg" id="fdm-units">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-2 md:p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-indigo-500 mb-1"><i class="fa-solid fa-users"></i></div>
+                        <div class="text-xs font-bold text-gray-400 mb-1">الفرق</div>
+                        <div class="font-black text-gray-800 text-sm md:text-lg" id="fdm-teams">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-2 md:p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-pink-500 mb-1"><i class="fa-solid fa-user-gear"></i></div>
+                        <div class="text-xs font-bold text-gray-400 mb-1">مهندسين</div>
+                        <div class="font-black text-gray-800 text-sm md:text-lg" id="fdm-eng">0</div>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-gray-600">نسبة الإنجاز الفعلي للمباني:</span>
+                        <span class="text-sm font-black text-blue-600" id="fdm-progress-text">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner overflow-hidden">
+                        <div id="fdm-progress" class="bg-blue-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Govs & Status -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-100">
+                        <div class="text-xs font-bold text-gray-400 mb-2 border-b border-gray-200 pb-1">توزيع الزونات (المحافظات)</div>
+                        <div id="fdm-govs" class="max-h-32 overflow-y-auto no-scrollbar pr-1 space-y-1">--</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-100 flex flex-col justify-center">
+                        <div class="text-xs font-bold text-gray-400 mb-3 border-b border-gray-200 pb-1">حالة الحصر</div>
+                        <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-gray-700 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> حصر جديد</span><span class="text-sm font-black text-gray-800" id="fdm-status-new">0</span></div>
+                        <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-gray-700 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> قيد العمل</span><span class="text-sm font-black text-gray-800" id="fdm-status-prog">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-xs font-bold text-gray-700 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> منجز</span><span class="text-sm font-black text-gray-800" id="fdm-status-comp">0</span></div>
                     </div>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <input type="text" id="aiChatInput" placeholder="اسأل عن الإحصاءات..." class="flex-1 px-3 py-2 rounded-xl bg-white/60 border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-purple-400" onkeydown="if(event.key==='Enter') sendAiMessage()">
-                <button onclick="sendAiMessage()" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl text-sm transition-all hover:shadow-md"><i class="fa-solid fa-paper-plane"></i></button>
+            
+            <div class="p-3 md:p-4 bg-gray-50/90 border-t border-gray-200/60 shrink-0 text-center z-20">
+                <button type="button" onclick="closeFileDetailsModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl shadow-md transition-all text-sm w-full md:w-auto">إغلاق النافذة</button>
             </div>
         </div>
     </div>

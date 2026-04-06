@@ -588,3 +588,31 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
         }
+
+        /* ================================================================
+           سمة الأنثى (الزهري الغامق) - تجاوز ألوان Tailwind الزرقاء
+        ================================================================ */
+        body.theme-female .bg-blue-100 { background-color: #fce7f3 !important; }
+        body.theme-female .bg-blue-500 { background-color: #db2777 !important; }
+        body.theme-female .bg-blue-600 { background-color: #be185d !important; }
+        body.theme-female .bg-blue-700 { background-color: #9d174d !important; }
+        body.theme-female .text-blue-300 { color: #f9a8d4 !important; }
+        body.theme-female .text-blue-400 { color: #f472b6 !important; }
+        body.theme-female .text-blue-500 { color: #db2777 !important; }
+        body.theme-female .text-blue-600 { color: #be185d !important; }
+        body.theme-female .text-blue-700 { color: #9d174d !important; }
+        body.theme-female .text-blue-800 { color: #831843 !important; }
+        body.theme-female .border-blue-100 { border-color: #fce7f3 !important; }
+        body.theme-female .border-blue-200 { border-color: #fbcfe8 !important; }
+        body.theme-female .border-blue-400 { border-color: #f472b6 !important; }
+        body.theme-female .border-blue-500 { border-color: #db2777 !important; }
+        body.theme-female .ring-blue-300 { --tw-ring-color: #f9a8d4 !important; }
+        body.theme-female .ring-blue-400 { --tw-ring-color: #f472b6 !important; }
+        body.theme-female .ring-blue-500 { --tw-ring-color: #db2777 !important; }
+        body.theme-female .from-blue-500 { --tw-gradient-from: #db2777 !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(219, 39, 119, 0)) !important; }
+        body.theme-female .to-blue-600 { --tw-gradient-to: #be185d !important; }
+        body.theme-female .shadow-blue-500\/20 { --tw-shadow-color: rgba(219,39,119,0.2) !important; --tw-shadow: var(--tw-shadow-colored) !important; }
+        body.theme-female .bg-gradient-to-r.from-blue-600.to-blue-500 { background-image: linear-gradient(to right, #be185d, #db2777) !important; }
+        body.theme-female .bg-gradient-to-br.from-blue-500.to-blue-600 { background-image: linear-gradient(to bottom right, #db2777, #be185d) !important; }
+        body.theme-female .nav-indicator { background: rgba(219, 39, 119, 0.1) !important; border-color: rgba(219, 39, 119, 0.2) !important; }
+        body.theme-female .loader-fill { background: linear-gradient(90deg, #9d174d, #db2777, #f472b6) !important; box-shadow: 0 0 10px rgba(219,39,119,0.4) !important;}

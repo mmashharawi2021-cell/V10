@@ -7,6 +7,10 @@
 
   window.currentUser = currentUser;
 
+  if (currentUser.gender === 'female') {
+    document.body.classList.add('theme-female');
+  }
+
   function normalizeArabic(value) {
     return String(value || '')
       .trim()
@@ -114,11 +118,12 @@
   function showWelcomeCard() {
     if (sessionStorage.getItem('welcomeShown')) return;
 
+    const avatarBg = currentUser.gender === 'female' ? 'from-pink-500 to-pink-600' : 'from-blue-500 to-blue-600';
     const wrapper = document.createElement('div');
     wrapper.id = 'welcomeCard';
     wrapper.className = 'fixed top-6 right-6 md:right-10 z-[100000] glass-panel rounded-2xl shadow-2xl border border-white/70 p-4 min-w-[280px] max-w-[90vw] flex items-center gap-4 transition-all duration-700 transform translate-y-[-150%] opacity-0';
     wrapper.innerHTML = `
-      <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl shadow-lg shrink-0">
+      <div class="w-12 h-12 rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center text-white text-xl shadow-lg shrink-0">
         <i class="fa-solid fa-hand-sparkles"></i>
       </div>
       <div class="flex-1 text-right" dir="rtl">
@@ -159,12 +164,13 @@
       ? 'كل المحافظات'
       : (Array.isArray(assigned) ? assigned.join('، ') : assigned || 'غير محدد');
 
+    const iconBg = currentUser.gender === 'female' ? 'bg-pink-500/10 text-pink-600' : 'bg-blue-500/10 text-blue-600';
     const wrapper = document.createElement('div');
     wrapper.id = 'sessionAccessCard';
     wrapper.className = 'fixed bottom-4 left-4 z-[9999] glass-panel rounded-2xl shadow-xl border border-white/70 p-3 min-w-[240px] max-w-[90vw]';
     wrapper.innerHTML = `
       <div class="flex items-start gap-3" dir="rtl">
-        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+        <div class="w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0">
           <i class="fa-solid fa-user-shield"></i>
         </div>
         <div class="flex-1 min-w-0">
