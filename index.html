@@ -246,6 +246,15 @@
         </div>
     </nav>
 
+    <!-- مؤشر حالة الاتصال بقاعدة البيانات (Live Sync) -->
+    <div id="cloudSyncStatus" class="fixed top-6 left-6 z-[90000] glass-panel px-4 py-2 rounded-full flex items-center gap-2 shadow-sm border-white/40 transition-all duration-300 pointer-events-none hidden sm:flex">
+        <div class="relative flex h-3 w-3 items-center justify-center" id="cloudSyncDot">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </div>
+        <span id="cloudSyncText" class="text-xs font-bold text-emerald-600 tracking-wide">متصل بالخادم (Live)</span>
+    </div>
+
     <!-- حاوية الصفحات -->
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pages-wrapper">
 

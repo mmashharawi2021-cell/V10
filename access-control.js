@@ -1,5 +1,5 @@
 (function () {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
   if (!currentUser) {
     window.location.href = 'login.html';
     return;
@@ -109,6 +109,45 @@
       el.style.display = 'none';
       el.setAttribute('aria-hidden', 'true');
     });
+  }
+
+  function showWelcomeCard() {
+    if (sessionStorage.getItem('welcomeShown')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'welcomeCard';
+    wrapper.className = 'fixed top-6 right-6 md:right-10 z-[100000] glass-panel rounded-2xl shadow-2xl border border-white/70 p-4 min-w-[280px] max-w-[90vw] flex items-center gap-4 transition-all duration-700 transform translate-y-[-150%] opacity-0';
+    wrapper.innerHTML = `
+      <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl shadow-lg shrink-0">
+        <i class="fa-solid fa-hand-sparkles"></i>
+      </div>
+      <div class="flex-1 text-right" dir="rtl">
+        <div class="text-sm text-gray-500 font-bold mb-1">أهلاً بك في منظومة GIS</div>
+        <div class="text-lg font-black text-gray-800">${getDisplayName(currentUser)}</div>
+      </div>
+      <button id="closeWelcomeBtn" class="text-gray-400 hover:text-red-500 transition-colors self-start">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    `;
+    document.body.appendChild(wrapper);
+
+    // ظهور البطاقة بعد 3.8 ثوانٍ لتتزامن مع انتهاء شاشة التحميل الافتتاحية
+    setTimeout(() => {
+      wrapper.classList.remove('translate-y-[-150%]', 'opacity-0');
+      wrapper.classList.add('translate-y-0', 'opacity-100');
+    }, 3800); 
+
+    const removeCard = () => {
+      wrapper.classList.remove('translate-y-0', 'opacity-100');
+      wrapper.classList.add('translate-y-[-150%]', 'opacity-0');
+      setTimeout(() => wrapper.remove(), 500);
+    };
+
+    wrapper.querySelector('#closeWelcomeBtn').addEventListener('click', removeCard);
+    // إخفاء البطاقة تلقائياً بعد 9 ثوانٍ
+    setTimeout(() => { if (document.body.contains(wrapper)) removeCard(); }, 9000);
+
+    sessionStorage.setItem('welcomeShown', 'true');
   }
 
   function ensureSessionCard() {
@@ -260,11 +299,13 @@
     const statsCompareBy = document.getElementById('statsCompareBy');
     if (statsCompareBy) applyGovernorateSelectorLock(statsCompareBy);
 
+    showWelcomeCard();
     ensureSessionCard();
   }
 
   window.logout = function logout() {
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('welcomeShown');
     window.location.href = 'login.html';
   };
 

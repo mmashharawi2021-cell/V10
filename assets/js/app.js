@@ -22,6 +22,31 @@ let chartsInitialized = false;
         }
         window.showToast = showToast;
 
+        // دالة تحديث مؤشر المزامنة (Live)
+        function updateCloudSyncStatus(state) {
+            const statusBox = document.getElementById('cloudSyncStatus');
+            const statusDot = document.getElementById('cloudSyncDot');
+            const statusText = document.getElementById('cloudSyncText');
+            if (!statusBox || !statusDot || !statusText) return;
+
+            if (state === 'syncing') {
+                statusDot.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-blue-500 text-[12px]"></i>';
+                statusText.className = 'text-xs font-bold text-blue-600 tracking-wide';
+                statusText.innerText = 'جاري المزامنة...';
+            } else if (state === 'error' || state === 'offline') {
+                statusDot.innerHTML = '<span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>';
+                statusText.className = 'text-xs font-bold text-red-600 tracking-wide';
+                statusText.innerText = state === 'offline' ? 'غير متصل بالشبكة' : 'خطأ في المزامنة';
+            } else if (state === 'connected') {
+                statusDot.innerHTML = '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>';
+                statusText.className = 'text-xs font-bold text-emerald-600 tracking-wide';
+                statusText.innerText = 'متصل بالخادم (Live)';
+            }
+        }
+        window.addEventListener('online', () => updateCloudSyncStatus('connected'));
+        window.addEventListener('offline', () => updateCloudSyncStatus('offline'));
+        if (!navigator.onLine) updateCloudSyncStatus('offline');
+
         function filterFeaturesForCurrentUser(features) {
             if (!Array.isArray(features)) return [];
             if (window.isFeatureAllowed) return features.filter(feature => window.isFeatureAllowed(feature));
@@ -1122,23 +1147,30 @@ let chartsInitialized = false;
                                 "عدد المهندسين": parseInt(currentSelectedLayer.feature.properties["عدد المهندسين"] || currentSelectedLayer.feature.properties["engineers_"]) || 0
                             };
 
+                            updateCloudSyncStatus('syncing');
+
                             window.saveZoneUpdate(zoneCode, updateData).then(result => {
                                 if (result && result.success) {
                                     console.log('Individual zone update saved to Firestore');
+                                    updateCloudSyncStatus('connected');
+                                    showToast('تم مزامنة التعديلات مع قاعدة البيانات (Live) بنجاح', 'success');
                                 } else {
                                     console.warn('Firestore update failed:', result.message);
-                                    showToast('تم حفظ التعديلات محلياً فقط', 'warning');
+                                    updateCloudSyncStatus('error');
+                                    showToast('حدث خطأ في المزامنة، تم الحفظ محلياً فقط', 'warning');
                                 }
                             }).catch(err => {
                                 console.error('Firestore save error:', err);
-                                showToast('تم حفظ التعديلات محلياً فقط', 'warning');
+                                updateCloudSyncStatus('error');
+                                showToast('خطأ في الاتصال بالخادم، تم الحفظ محلياً فقط', 'red');
                             });
                         } else {
                             console.warn('Could not determine zoneCode for Firestore update');
+                            showToast('تم حفظ التعديلات محلياً بنجاح', 'success');
                         }
+                    } else {
+                        showToast('تم حفظ التعديلات محلياً بنجاح', 'success');
                     }
-                    
-                    showToast('تم حفظ التعديلات بنجاح', 'success');
 
                     if (currentSelectedLayer.setStyle) {
                         currentSelectedLayer.setStyle(getZoneStyle(currentSelectedLayer.feature));

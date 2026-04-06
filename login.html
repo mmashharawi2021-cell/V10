@@ -353,7 +353,7 @@
         const result = await authenticateUser(emailInput, passwordInput);
 
         if (result.success) {
-          localStorage.setItem('currentUser', JSON.stringify(result.user));
+          sessionStorage.setItem('currentUser', JSON.stringify(result.user));
           window.location.href = 'index.html';
         } else {
           submitBtn.innerHTML = originalText;
