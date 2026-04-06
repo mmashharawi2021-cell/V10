@@ -262,6 +262,12 @@
     }
 
     /* Glass sparkles */
+    .global-lang-btn.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      color: white !important;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+    }
+
     .sparkle {
         position: absolute;
         background: #fff;
@@ -287,23 +293,27 @@
 
   <div class="login-wrapper">
     <div class="login-container">
+      <div class="login-lang-switch" style="display:flex;justify-content:center;gap:8px;margin-bottom:18px;">
+        <button type="button" id="globalLangArBtn" class="global-lang-btn active" style="border:none;border-radius:999px;padding:10px 16px;font-weight:700;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;">AR</button>
+        <button type="button" id="globalLangEnBtn" class="global-lang-btn" style="border:none;border-radius:999px;padding:10px 16px;font-weight:700;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;">EN</button>
+      </div>
       <div class="logos">
         <img src="logo2.png" alt="Logo 1">
         <img src="logo3.png" alt="Logo 2">
       </div>
-      <h1>لوحة الحصر الميداني المتقدمة</h1>
-      <p>نظام المعلومات الجغرافية المتكامل - غزة</p>
+      <h1 id="loginTitle">لوحة الحصر الميداني المتقدمة</h1>
+      <p id="loginSubtitle">نظام المعلومات الجغرافية المتكامل - غزة</p>
 
       <form id="login-form">
         <div class="input-group">
-          <label>البريد الإلكتروني أو اسم المستخدم</label>
+          <label id="loginUserLabel">البريد الإلكتروني أو اسم المستخدم</label>
           <div class="input-wrapper">
             <input type="text" id="username" placeholder="مثال: ibrahim أو user@example.com" required autocomplete="username">
             <i class="fa-solid fa-user"></i>
           </div>
         </div>
         <div class="input-group">
-          <label>كلمة المرور</label>
+          <label id="loginPassLabel">كلمة المرور</label>
           <div class="input-wrapper">
             <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
             <i class="fa-solid fa-lock"></i>
@@ -324,6 +334,7 @@
     © جميع الحقوق محفوظة لدى الهيئة العربية الدولية للإعمار في فلسطين
   </div>
 
+  <script src="assets/js/site-i18n.js?v=1"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
     import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
@@ -346,7 +357,8 @@
 
       // Loading state visualization
       const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق...';
+      const lang = localStorage.getItem('site_lang') === 'en' ? 'en' : 'ar';
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${lang === 'en' ? 'Verifying...' : 'جاري التحقق...'}`;
       submitBtn.disabled = true;
 
       try {
@@ -368,7 +380,8 @@
           console.error("Login Error:", err);
           submitBtn.innerHTML = originalText;
           submitBtn.disabled = false;
-          errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> خطأ في الاتصال بقاعدة البيانات`;
+          const lang2 = localStorage.getItem('site_lang') === 'en' ? 'en' : 'ar';
+          errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${lang2 === 'en' ? 'Database connection error' : 'خطأ في الاتصال بقاعدة البيانات'}`;
           errorMsg.classList.add('show');
       }
     });

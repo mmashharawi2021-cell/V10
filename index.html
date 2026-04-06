@@ -233,7 +233,7 @@
             </button>
             <button id="nav-style" onclick="switchPage('style', this)"
                 class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
-                <i class="fa-solid fa-palette"></i> التحليل الذكي
+                <i class="fa-solid fa-print"></i> <span id="navStyleLabel">الإخراج الفني</span>
             </button>
             <button id="nav-personas" onclick="switchPage('personas', this)"
                 class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
@@ -243,6 +243,11 @@
                 class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 hidden relative z-10 text-gray-600 hover:text-blue-600">
                 <i class="fa-solid fa-users-gear"></i> مركز التحكم
             </button>
+
+            <div class="global-lang-switch glass-panel rounded-full p-1 inline-flex items-center gap-1 shadow-sm border-white/50 ms-2" id="globalLangSwitch">
+                <button id="globalLangArBtn" class="global-lang-btn active" type="button">AR</button>
+                <button id="globalLangEnBtn" class="global-lang-btn" type="button">EN</button>
+            </div>
         </div>
     </nav>
 
@@ -264,9 +269,9 @@
             <section class="mb-10 relative">
                 <div class="glass-panel p-8 md:p-10 rounded-3xl shadow-lg border-white/60">
                     <div class="text-center mb-8 animate-fade-in delay-100">
-                        <h2 class="text-3xl font-bold text-gray-800"><i
+                        <h2 id="homePageHeading" class="text-3xl font-bold text-gray-800"><i
                                 class="fa-solid fa-pen-to-square text-blue-500 ml-3"></i>محرر الخرائط التفاعلي</h2>
-                        <p class="text-gray-500 mt-2">تحرير ورسم مباشر على البيانات الجيومكانية</p>
+                        <p id="homePageSubheading" class="text-gray-500 mt-2">تحرير ورسم مباشر على البيانات الجيومكانية</p>
                     </div>
 
                     <!-- أدوات التعديل الخارجية (Custom Edit Toolbar) -->
@@ -409,8 +414,8 @@
                         class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-md hover:scale-110 transition-transform">
                         <i class="fa-solid fa-chart-line text-3xl"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-800">الإحصاء التحليلي</h2>
-                    <p class="text-gray-500 mt-2 text-lg">استيراد بيانات جيومكانية وتحليلها إحصائياً</p>
+                    <h2 id="processPageHeading" class="text-3xl font-bold text-gray-800">الإحصاء التحليلي</h2>
+                    <p id="processPageSubheading" class="text-gray-500 mt-2 text-lg">استيراد بيانات جيومكانية وتحليلها إحصائياً</p>
                 </div>
 
 
@@ -556,7 +561,7 @@
                         class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-purple-500 shadow-md transition-transform duration-700">
                         <i class="fa-solid fa-chalkboard-user text-3xl"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-800">عرض البيانات</h2>
+                    <h2 id="flowPageHeading" class="text-3xl font-bold text-gray-800">عرض البيانات</h2>
                     <p class="text-gray-500 mt-3 text-lg">مشاهدة وشرح الإنجازات والمناطق تفاعلياً</p>
                 </div>
 
@@ -740,76 +745,66 @@
                     class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-md">
                     <i class="fa-solid fa-print text-3xl"></i>
                 </div>
-                <h2 class="text-3xl font-bold text-gray-800">التحليل الذكي</h2>
-                <p class="text-gray-500 mt-2 text-lg">تجهيز الخريطة للطباعة بأسلوب عصري مع جميع ملحقات الإخراج الفني</p>
+                <h2 id="stylePageHeading" class="text-3xl font-bold text-gray-800">الإخراج الفني</h2>
+                <p id="stylePageSubheading" class="text-gray-500 mt-2 text-lg">تجهيز الخريطة للطباعة بأسلوب عصري مع جميع ملحقات الإخراج الفني</p>
+                <div class="flex items-center justify-center gap-2 mt-4 flex-wrap">
+                    <div class="layout-lang-switch glass-panel rounded-full p-1 inline-flex items-center gap-1 shadow-sm border-white/50">
+                        <button id="layoutLangArBtn" class="layout-lang-btn active" type="button">AR</button>
+                        <button id="layoutLangEnBtn" class="layout-lang-btn" type="button">EN</button>
+                    </div>
+                    <span id="layoutCurrentPaperBadge" class="layout-paper-badge glass-panel px-4 py-2 rounded-full text-sm font-bold text-slate-700 shadow-sm border-white/50">A3 أفقي · 1320×880</span>
+                </div>
             </section>
 
-            <div class="flex flex-col lg:flex-row gap-6 h-[800px] mb-10">
+            <div class="layout-shell flex flex-col lg:flex-row gap-6 mb-10">
 
                 <!-- شريط الأدوات (Tools Sidebar) -->
                 <div
-                    class="w-full lg:w-72 glass-panel rounded-3xl p-5 flex flex-col gap-4 overflow-y-auto no-scrollbar shadow-lg border-white/60 z-10 shrink-0 animate-fade-in delay-200">
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2"><i
-                            class="fa-solid fa-toolbox ml-2 text-blue-500"></i>إضافة بيانات الخريطة</h3>
-
+                    class="layout-sidebar w-full lg:w-auto glass-panel rounded-[20px] p-2 flex flex-col items-center gap-2 overflow-y-auto no-scrollbar shadow-lg border-white/60 z-10 shrink-0 animate-fade-in delay-200">
+                    
                     <label
-                        class="bg-indigo-50 hover:bg-indigo-100 transition p-3 rounded-xl border border-indigo-200 shadow-sm text-right flex items-center group cursor-pointer mb-2">
-                        <i
-                            class="fa-solid fa-file-arrow-up text-3xl ml-4 text-indigo-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">رفع GeoJSON</strong><span
-                                class="text-xs text-gray-500">تحميل ملفات خريطة (.geojson)</span></div>
+                        class="bg-indigo-50 hover:bg-indigo-100 transition w-10 h-10 rounded-xl border border-indigo-200 shadow-sm flex items-center justify-center cursor-pointer mb-1 group" title="رفع GeoJSON">
+                        <i class="fa-solid fa-file-arrow-up text-lg text-indigo-500 group-hover:scale-110 transition-transform"></i>
                         <input type="file" id="layoutGeoJsonInput" class="hidden" accept=".geojson,.json">
                     </label>
 
                     <button id="layoutUrlBtn"
-                        class="bg-blue-50 hover:bg-blue-100 transition p-3 rounded-xl border border-blue-200 shadow-sm text-right flex items-center group w-full mb-4">
-                        <i
-                            class="fa-solid fa-link text-3xl ml-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">إضافة رابط (XYZ)</strong><span
-                                class="text-xs text-gray-500">جلب طبقات من خوادم خارجية</span></div>
+                        class="bg-blue-50 hover:bg-blue-100 transition w-10 h-10 rounded-xl border border-blue-200 shadow-sm flex items-center justify-center group mb-1" title="إضافة رابط خارجي (XYZ)">
+                        <i class="fa-solid fa-link text-lg text-blue-500 group-hover:scale-110 transition-transform"></i>
                     </button>
 
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2"><i
-                            class="fa-solid fa-shapes ml-2 text-purple-500"></i>عناصر الإخراج الفني</h3>
+                    <div class="w-full border-t border-gray-200/60 my-1.5"></div>
 
                     <button id="btnAddLayoutNorthArrow"
-                        class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
-                        <i
-                            class="fa-regular fa-compass text-2xl ml-3 text-orange-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">سهم الشمال</strong></div>
+                        class="bg-white/50 hover:bg-white/80 transition w-10 h-10 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center group mb-1" title="سهم الشمال">
+                        <i class="fa-regular fa-compass text-xl text-orange-500 group-hover:scale-110 transition-transform"></i>
                     </button>
 
                     <button id="btnAddLayoutScaleBar"
-                        class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
-                        <i
-                            class="fa-solid fa-ruler text-2xl ml-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">مقياس الرسم</strong></div>
+                        class="bg-white/50 hover:bg-white/80 transition w-10 h-10 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center group mb-1" title="مقياس الرسم">
+                        <i class="fa-solid fa-ruler text-lg text-emerald-500 group-hover:scale-110 transition-transform"></i>
                     </button>
 
                     <button id="btnAddLayoutLegend"
-                        class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
-                        <i
-                            class="fa-solid fa-list-ul text-2xl ml-3 text-purple-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">مفتاح الخريطة</strong></div>
+                        class="bg-white/50 hover:bg-white/80 transition w-10 h-10 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center group mb-1" title="مفتاح الخريطة">
+                        <i class="fa-solid fa-list-ul text-lg text-purple-500 group-hover:scale-110 transition-transform"></i>
                     </button>
 
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2 mt-4"><i
-                            class="fa-solid fa-print ml-2 text-gray-500"></i>إعدادات الورقة</h3>
-                    <select
-                        class="w-full bg-white/80 border border-gray-300 rounded-lg p-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 ring-blue-500/50 shadow-sm">
-                        <option>حجم الورقة: A4 (297 × 210 مم)</option>
-                        <option>حجم الورقة: A3 (420 × 297 مم)</option>
-                    </select>
+                    <div class="w-full border-t border-gray-200/60 mt-auto mb-1.5"></div>
 
+                    <button id="layoutResetBtn"
+                        class="bg-white text-slate-700 w-10 h-10 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition flex items-center justify-center mb-1 group" title="إعادة الضبط">
+                        <i class="fa-solid fa-rotate-left text-lg group-hover:-rotate-45 transition-transform"></i>
+                    </button>
                     <button id="btnExportPDF"
-                        class="mt-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-transform flex items-center justify-center">
-                        <i class="fa-solid fa-file-pdf ml-2 text-lg"></i>تصدير PDF
+                        class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white w-10 h-10 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.05] transition-transform flex items-center justify-center" title="تصدير PDF">
+                        <i class="fa-solid fa-file-pdf text-lg"></i>
                     </button>
                 </div>
 
                 <!-- مساحة العمل للورقة (Layout Canvas) -->
                 <div id="layoutWorkspace"
-                    class="flex-grow glass-panel rounded-3xl p-4 md:p-8 shadow-inner border-white/60 flex items-center justify-center bg-gray-200/40 relative overflow-hidden animate-fade-in delay-300"
+                    class="layout-workspace flex-grow glass-panel rounded-3xl p-4 md:p-8 shadow-inner border-white/60 flex items-center justify-center bg-gray-200/40 relative overflow-hidden animate-fade-in delay-300"
                     style="background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 20px 20px;">
 
                     <!-- أدوات التكبير المحيطة -->
@@ -827,18 +822,18 @@
 
                     <!-- ورقة الطباعة التفاعلية (A4 Landscape aspect ratio Demo) -->
                     <div id="layoutPaper"
-                        class="relative bg-white shadow-2xl transition-all duration-300 transform w-full max-w-[850px] aspect-[1.414/1] p-5 lg:p-6 border border-gray-300 group/canvas">
+                        class="layout-paper relative bg-white shadow-2xl transition-all duration-300 transform w-full max-w-[850px] aspect-[1.414/1] p-5 lg:p-6 border border-gray-300 group/canvas">
 
                         <!-- إطار الورقة الداخلي (Neatline) -->
                         <div class="border-[3px] border-gray-800 w-full h-full relative p-3 flex flex-col">
 
                             <!-- الرأس (Title) -->
                             <div
-                                class="w-full text-center border-b-2 border-gray-800 pb-3 mb-3 cursor-pointer hover:bg-blue-50/50 transition border-dashed group/title relative">
-                                <h1
+                                class="layout-paper-header w-full text-center border-b-2 border-gray-800 pb-3 mb-3 cursor-pointer hover:bg-blue-50/50 transition border-dashed group/title relative">
+                                <h1 id="layoutPaperTitle"
                                     class="text-3xl font-extrabold text-gray-900 font-serif tracking-wide drop-shadow-sm outline-none focus:bg-white rounded px-2" contenteditable="true" spellcheck="false" title="انقر لتعديل عنوان الخريطة">
                                     خريطة التقسيم الإداري التفصيلية</h1>
-                                <p class="text-base text-gray-700 font-semibold mt-1 outline-none focus:bg-white rounded px-2 inline-block" contenteditable="true" spellcheck="false" title="انقر للتعديل">المرحلة الأولى - دراسة حالة 2026
+                                <p id="layoutPaperSubtitle" class="text-base text-gray-700 font-semibold mt-1 outline-none focus:bg-white rounded px-2 inline-block" contenteditable="true" spellcheck="false" title="انقر للتعديل">المرحلة الأولى - دراسة حالة 2026
                                 </p>
                                 <span
                                     class="absolute top-1 right-2 p-2 bg-blue-100 text-blue-600 rounded-full text-xs opacity-0 group-hover/title:opacity-100 transition shadow"><i
@@ -897,14 +892,14 @@
                             </div>
 
                             <!-- الشريط السفلي والجانبي (Legend, Overview & Credits) -->
-                            <div class="flex gap-3 mt-3 h-[140px]">
+                            <div class="layout-footer-grid flex gap-3 mt-3 h-[140px]">
 
                                 <!-- مفتاح الخريطة (Legend) -->
                                 <div id="layoutLegend"
                                     class="layout-draggable w-5/12 border-2 border-gray-400 p-3 text-right bg-white cursor-move hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-purple-500 transition relative group/legend flex flex-col justify-center overflow-hidden">
-                                    <h4
+                                    <h4 id="layoutLegendHeading"
                                         class="font-bold border-b-2 border-gray-800 pb-1 mb-2 text-sm flex items-center">
-                                        <i class="fa-solid fa-list-ul ml-2 text-gray-500"></i>مفتاح الخريطة (Legend)
+                                        <i class="fa-solid fa-list-ul ml-2 text-gray-500"></i><span id="layoutLegendTitleText">مفتاح الخريطة</span>
                                     </h4>
                                     <div class="grid grid-cols-2 gap-x-2 gap-y-1" id="layoutLegendContent">
                                         <div class="text-xs text-gray-500 w-full col-span-2 text-center py-2">سيتم إضافة
@@ -916,9 +911,9 @@
                                 <div id="layoutOverviewWrapper"
                                     class="w-4/12 border-2 border-gray-400 relative cursor-pointer group/overview bg-blue-50 flex items-center justify-center overflow-hidden hover:outline hover:outline-2 outline-offset-1 hover:outline-green-500 transition border-double">
                                     <div id="layoutOverviewMap" class="absolute inset-0 z-0"></div>
-                                    <div
+                                    <div id="layoutOverviewTitleBar"
                                         class="absolute top-0 left-0 w-full bg-white/90 text-center text-xs font-bold text-gray-800 py-1 border-b border-gray-300 backdrop-blur-sm z-20">
-                                        خريطة الموقع العام</div>
+                                        <span id="layoutOverviewTitleText">خريطة الموقع العام</span></div>
                                     <button id="layoutOverviewResetBtn"
                                         class="absolute bottom-2 left-2 p-2 bg-green-100 text-green-600 rounded-full text-xs opacity-0 group-hover/overview:opacity-100 transition shadow z-20"
                                         title="إعادة ضبط المشهد"><i
@@ -927,7 +922,7 @@
 
                                 <!-- الاعتمادات والشعارات (Credits) -->
                                 <div
-                                    class="w-3/12 border-2 border-gray-400 p-2 text-center flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-gray-600 transition relative group/credits">
+                                    class="layout-credits-box w-3/12 border-2 border-gray-400 p-2 text-center flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-gray-600 transition relative group/credits">
                                     <div class="flex gap-2 mb-2">
                                         <div
                                             class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-[8px] text-gray-500 shadow-inner border border-gray-300 font-bold">
@@ -959,85 +954,170 @@
 
                 <!-- إعدادات الخصائص (Properties Panel) -->
                 <div
-                    class="w-full lg:w-72 glass-panel rounded-3xl p-5 flex flex-col shadow-lg border-white/60 z-10 shrink-0 h-full overflow-y-auto no-scrollbar relative">
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-4"><i
-                            class="fa-solid fa-sliders ml-2 text-blue-500"></i>خصائص العنصر المحدد</h3>
+                    class="layout-properties w-full lg:w-auto glass-panel rounded-[20px] p-2 flex flex-col items-center gap-2 overflow-y-auto no-scrollbar shadow-lg border-white/60 z-10 shrink-0 animate-fade-in delay-200">
+                    
+                    <!-- تغيير النمط -->
+                    <button id="propCycleStyleBtn" class="bg-orange-50 hover:bg-orange-100 transition w-10 h-10 rounded-xl border border-orange-200 shadow-sm flex items-center justify-center group mb-1" title="تغيير نمط العنصر">
+                        <i class="fa-solid fa-shapes text-lg text-orange-500 group-hover:scale-110 transition-transform"></i>
+                    </button>
 
-                    <!-- إعدادات وهمية لسهم الشمال كمثال -->
-                    <div id="propNorthArrow" class="animate__animated animate__fadeIn">
-                        <div
-                            class="bg-orange-50/50 border border-orange-200 p-2 rounded-lg mb-4 flex items-center text-sm font-semibold text-orange-800">
-                            <i class="fa-solid fa-compass ml-2 text-orange-500 text-lg"></i> سهم الشمال (North Arrow)
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">اختر النمط البصري:</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button
-                                    class="p-3 border-2 border-orange-500 rounded-xl bg-orange-50 flex justify-center text-gray-800 shadow-sm"><i
-                                        class="fa-solid fa-arrow-up-long text-3xl object-contain drop-shadow"></i></button>
-                                <button
-                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i
-                                        class="fa-solid fa-location-arrow text-3xl object-contain drop-shadow-sm transform -rotate-45"></i></button>
-                                <button
-                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i
-                                        class="fa-regular fa-compass text-3xl object-contain drop-shadow-sm"></i></button>
-                                <button
-                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i
-                                        class="fa-brands fa-waze text-3xl object-contain drop-shadow-sm"></i></button>
-                                <button
-                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700 font-serif font-black text-2xl">N</button>
-                                <button
-                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center items-center text-xs text-blue-500 font-bold bg-gray-50/50">+
-                                    المزيد</button>
-                            </div>
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">اللون الأساسي:</label>
-                            <div class="flex items-center gap-3">
-                                <input type="color" value="#1f2937"
-                                    class="w-10 h-10 rounded-lg cursor-pointer border-2 border-gray-300 shadow-sm p-0 rounded-full overflow-hidden">
-                                <span
-                                    class="font-mono text-xs text-gray-500 border border-gray-200 p-1.5 rounded-lg bg-white">#1F2937</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-5">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="block text-sm font-bold text-gray-700">الحجم الكلي:</label>
-                                <span
-                                    class="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">85%</span>
-                            </div>
-                            <input type="range" min="10" max="100" value="85"
-                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500">
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">زاوية الدوران (Rotation):</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" value="0"
-                                    class="w-20 border border-gray-300 rounded-lg p-2 text-center font-bold text-gray-700 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm">
-                                <span class="text-sm font-bold text-gray-500">درجة</span>
-                                <button
-                                    class="ml-auto w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition"><i
-                                        class="fa-solid fa-rotate-right"></i></button>
-                            </div>
-                        </div>
+                    <!-- منتقي الألوان -->
+                    <div class="relative group mb-1 flex items-center justify-center" title="تغيير اللون">
+                        <input type="color" id="propColorPicker" value="#1f2937" class="w-10 h-10 rounded-xl cursor-pointer border-2 border-gray-300 shadow-sm p-0 overflow-hidden bg-white hover:scale-110 transition-transform">
                     </div>
 
-                    <!-- أزرار الحفظ/التعديل السفلية -->
-                    <div class="mt-auto border-t border-gray-200/60 pt-4 flex gap-3">
-                        <button
-                            class="flex-grow bg-blue-600 text-white hover:bg-blue-700 font-bold py-3 rounded-xl transition-colors text-sm shadow-md hover:shadow-lg"><i
-                                class="fa-solid fa-check ml-2"></i>تطبيق التغييرات</button>
-                        <button
-                            class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 py-3 rounded-xl transition-colors text-sm border border-red-200 hover:border-transparent flex items-center justify-center group"><i
-                                class="fa-solid fa-trash-can group-hover:scale-110 transition-transform"></i></button>
-                    </div>
+                    <div class="w-full border-t border-gray-200/60 my-1.5"></div>
+
+                    <!-- تكبير -->
+                    <button id="propSizeIncBtn" class="bg-white/50 hover:bg-white/80 transition w-10 h-10 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center group mb-1" title="تكبير الحجم">
+                        <i class="fa-solid fa-expand text-lg text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    </button>
+
+                    <!-- تصغير -->
+                    <button id="propSizeDecBtn" class="bg-white/50 hover:bg-white/80 transition w-10 h-10 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center group mb-1" title="تصغير الحجم">
+                        <i class="fa-solid fa-compress text-lg text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    </button>
+
+                    <!-- تدوير -->
+                    <button id="propRotateBtn" class="bg-white/50 hover:bg-white/80 transition w-10 h-10 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center group mb-1" title="تدوير العنصر (45 درجة)">
+                        <i class="fa-solid fa-rotate-right text-lg text-purple-500 group-hover:scale-110 transition-transform"></i>
+                    </button>
+
+                    <div class="w-full border-t border-gray-200/60 mt-auto mb-1.5"></div>
+
+                    <!-- تطبيق / تفعيل -->
+                    <button id="propApplyBtn" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition w-10 h-10 rounded-xl border border-blue-200 shadow-sm flex items-center justify-center group mb-1" title="تطبيق التغييرات">
+                        <i class="fa-solid fa-check text-lg group-hover:scale-110 transition-transform"></i>
+                    </button>
+
+                    <!-- إعدادات الإخراج -->
+                    <button id="layoutConfigToggleBtn" class="bg-slate-50 text-slate-600 hover:bg-slate-600 hover:text-white transition w-10 h-10 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center group" title="إعدادات الإخراج الفني">
+                        <i class="fa-solid fa-sliders text-lg group-hover:scale-110 transition-transform"></i>
+                    </button>
+
+                    <!-- حذف -->
+                    <button id="propDeleteBtn" class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition w-10 h-10 rounded-xl border border-red-200 shadow-sm flex items-center justify-center group" title="إخفاء / حذف">
+                        <i class="fa-solid fa-trash-can text-lg group-hover:scale-110 transition-transform"></i>
+                    </button>
                 </div>
 
             </div>
+
+        <div id="layoutConfigPanel" class="layout-config-panel glass-panel rounded-3xl p-6 shadow-xl border-white/60 mb-10 hidden animate-fade-in">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div>
+                    <h3 id="layoutConfigTitle" class="text-xl font-extrabold text-slate-800">إعدادات الإخراج الفني</h3>
+                    <p id="layoutConfigDesc" class="text-sm text-slate-500 mt-1">تحكم بأبعاد الورقة والمفتاح وخريطة الموقع العام واللغة.</p>
+                </div>
+                <button id="layoutConfigCloseBtn" class="glass-panel px-4 py-2 rounded-2xl font-bold text-slate-700 hover:text-blue-600 transition-all border-white/60">إغلاق</button>
+            </div>
+
+            <div class="layout-config-grid">
+                <div class="layout-config-card">
+                    <label id="layoutPresetLabel" class="layout-config-label" for="layoutPresetSelect">مقاس الورقة</label>
+                    <select id="layoutPresetSelect" class="layout-config-input">
+                        <option value="a4-landscape">A4 أفقي</option>
+                        <option value="a4-portrait">A4 عمودي</option>
+                        <option value="a3-landscape" selected>A3 أفقي</option>
+                        <option value="a3-portrait">A3 عمودي</option>
+                        <option value="wide-board">لوحة عريضة</option>
+                        <option value="custom">مخصص</option>
+                    </select>
+
+                    <div class="layout-config-two-cols mt-4">
+                        <div>
+                            <label id="layoutWidthLabel" class="layout-config-label" for="layoutPaperWidthInput">العرض</label>
+                            <input id="layoutPaperWidthInput" class="layout-config-input" type="number" min="700" max="1800" step="10" value="1320">
+                            <input id="layoutPaperWidthRange" class="layout-config-range mt-3" type="range" min="700" max="1800" step="10" value="1320">
+                            <div class="layout-config-range-value"><span id="layoutPaperWidthValue">1320</span> px</div>
+                        </div>
+                        <div>
+                            <label id="layoutHeightLabel" class="layout-config-label" for="layoutPaperHeightInput">الارتفاع</label>
+                            <input id="layoutPaperHeightInput" class="layout-config-input" type="number" min="500" max="1500" step="10" value="880">
+                            <input id="layoutPaperHeightRange" class="layout-config-range mt-3" type="range" min="500" max="1500" step="10" value="880">
+                            <div class="layout-config-range-value"><span id="layoutPaperHeightValue">880</span> px</div>
+                        </div>
+                    </div>
+
+                    <button id="applyPaperSizeBtn" class="layout-config-primary-btn mt-4">تطبيق المقاس</button>
+                </div>
+
+                <div class="layout-config-card">
+                    <label id="layoutLanguageLabel" class="layout-config-label">لغة الصفحة</label>
+                    <div class="layout-config-inline-buttons">
+                        <button id="panelLangArBtn" type="button" class="layout-mini-btn active">العربية</button>
+                        <button id="panelLangEnBtn" type="button" class="layout-mini-btn">English</button>
+                    </div>
+                    <p id="layoutLanguageHint" class="text-xs text-slate-500 mt-3 leading-6">الترجمة تشمل الواجهة وعناوين عناصر الإخراج الفني.</p>
+                </div>
+
+                <div class="layout-config-card">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <label id="layoutOverviewControlLabel" class="layout-config-label !mb-0" for="layoutOverviewTitleInput">عنوان خريطة الموقع العام</label>
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600">
+                            <input id="layoutOverviewTitleToggle" type="checkbox" checked>
+                            <span id="layoutShowLabelOverview">إظهار</span>
+                        </label>
+                    </div>
+                    <input id="layoutOverviewTitleInput" class="layout-config-input" type="text" value="خريطة الموقع العام">
+                </div>
+
+                <div class="layout-config-card">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <label id="layoutOverviewSettingsLabel" class="layout-config-label !mb-0">التحكم في خريطة الموقع العام</label>
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600">
+                            <input id="layoutOverviewToggle" type="checkbox" checked>
+                            <span id="layoutOverviewShowMapLabel">إظهار الخريطة</span>
+                        </label>
+                    </div>
+
+                    <div class="layout-config-two-cols">
+                        <div>
+                            <label id="layoutOverviewWidthLabel" class="layout-config-label" for="layoutOverviewWidthInput">عرض الخريطة المصغرة</label>
+                            <input id="layoutOverviewWidthInput" class="layout-config-input" type="number" min="180" max="700" step="10" value="320">
+                        </div>
+                        <div>
+                            <label id="layoutOverviewHeightLabel" class="layout-config-label" for="layoutOverviewHeightInput">ارتفاع الخريطة المصغرة</label>
+                            <input id="layoutOverviewHeightInput" class="layout-config-input" type="number" min="100" max="360" step="10" value="140">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label id="layoutOverviewPaddingLabel" class="layout-config-label" for="layoutOverviewPaddingInput">هامش المشهد حول الإطار</label>
+                        <input id="layoutOverviewPaddingInput" class="layout-config-range" type="range" min="0" max="160" step="2" value="12">
+                        <div class="layout-config-range-value"><span id="layoutOverviewPaddingValue">12</span> px</div>
+                    </div>
+
+                    <div class="layout-config-inline-buttons mt-4">
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600">
+                            <input id="layoutOverviewExtentToggle" type="checkbox" checked>
+                            <span id="layoutOverviewExtentLabel">إظهار إطار الموقع</span>
+                        </label>
+                        <button id="layoutOverviewApplyBtn" type="button" class="layout-mini-btn">تطبيق إعدادات خريطة الموقع</button>
+                    </div>
+                </div>
+
+                <div class="layout-config-card">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <label id="layoutLegendControlLabel" class="layout-config-label !mb-0" for="layoutLegendTitleInput">عنوان مفتاح الخريطة</label>
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600">
+                            <input id="layoutLegendTitleToggle" type="checkbox" checked>
+                            <span id="layoutShowLabelLegend">إظهار</span>
+                        </label>
+                    </div>
+                    <input id="layoutLegendTitleInput" class="layout-config-input" type="text" value="مفتاح الخريطة">
+                </div>
+
+                <div class="layout-config-card layout-config-card--wide">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <label id="layoutLegendItemsLabel" class="layout-config-label !mb-0">عناصر مفتاح الخريطة</label>
+                        <button id="layoutLegendResetBtn" type="button" class="layout-mini-btn">إعادة العناصر الافتراضية</button>
+                    </div>
+                    <div id="layoutLegendItemsEditor" class="layout-legend-editor"></div>
+                </div>
+            </div>
+        </div>
+
         </div>
 
         <!-- ================= الصفحة الخامسة: الشخصيات (Geospatial Stats Dashboard) ================= -->
@@ -1215,13 +1295,13 @@
             <section class="max-w-6xl mx-auto">
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 animate-fade-in delay-100">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-2">إدارة المستخدمين</h2>
-                        <p class="text-gray-500 font-medium">التحكم في صلاحيات الوصول والحسابات النشطة</p>
+                        <h2 id="usersPageHeading" class="text-3xl font-bold text-gray-800 mb-2">إدارة المستخدمين</h2>
+                        <p id="usersPageSubheading" class="text-gray-500 font-medium">التحكم في صلاحيات الوصول والحسابات النشطة</p>
                     </div>
                     <button id="addUserBtn"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 self-start md:self-center">
                         <i class="fa-solid fa-user-plus"></i>
-                        <span>إضافة مستخدم جديد</span>
+                        <span id="addUserBtnLabel">إضافة مستخدم جديد</span>
                     </button>
                 </div>
 
@@ -1451,6 +1531,8 @@
 
     <!-- الأكواد البرمجية للوظائف والحركة والرسوم البيانية -->
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/smart-analysis.js?v=2"></script>
+    <script src="assets/js/site-i18n.js?v=1"></script>
     <script src="assets/js/personas-logic.js?v=5"></script>
 
     <!-- وظائف صفحة الإحصاء التحليلي -->
