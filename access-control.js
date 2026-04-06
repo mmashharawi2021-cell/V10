@@ -1,4 +1,3 @@
-
 (function () {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
   if (!currentUser) {
@@ -31,8 +30,8 @@
     ['الوسطي', 'الوسطى'],
     ['الوسطى', 'الوسطى'],
     ['khan yunis', 'خانيونس'],
-    ['khan yunis', 'خانيونس'],
     ['khanyunis', 'خانيونس'],
+    ['خان يونس', 'خانيونس'],
     ['خانيونس', 'خانيونس'],
     ['rafah', 'رفح'],
     ['رفح', 'رفح']
@@ -44,18 +43,25 @@
     return governorateAliasMap.get(raw) || governorateAliasMap.get(normalized) || raw;
   }
 
+  function getDisplayName(user) {
+    return user?.name || user?.fullName || user?.username || user?.email || 'مستخدم';
+  }
+
   function getAssignedGovernorateRaw() {
     if (!currentUser || currentUser.role === 'admin') return 'all';
-    return currentUser.governorate;
+    return currentUser.governorate || currentUser.governorates || 'all';
   }
 
   function getAssignedGovernoratesList() {
     const assigned = getAssignedGovernorateRaw();
     if (!assigned || assigned === 'all') return [];
     if (Array.isArray(assigned)) {
-      return assigned.map(canonicalGovernorateName);
+      return assigned.map(canonicalGovernorateName).filter(Boolean);
     }
-    return [canonicalGovernorateName(assigned)];
+    return String(assigned)
+      .split(/[,،]/)
+      .map((item) => canonicalGovernorateName(item))
+      .filter(Boolean);
   }
 
   function extractGovernorate(featureOrProps) {
@@ -90,13 +96,12 @@
     return isGovAllowed(extractGovernorate(feature));
   }
 
-  function filterGeoJSONByUser(data, layerType) {
+  function filterGeoJSONByUser(data) {
     if (!data || !Array.isArray(data.features) || currentUser.role === 'admin') return data;
-    const filtered = {
+    return {
       ...data,
       features: data.features.filter((feature) => isFeatureAllowed(feature))
     };
-    return filtered;
   }
 
   function hideElement(selector) {
@@ -110,9 +115,10 @@
     const existing = document.getElementById('sessionAccessCard');
     if (existing) return;
 
+    const assigned = getAssignedGovernorateRaw();
     const govText = currentUser.role === 'admin'
       ? 'كل المحافظات'
-      : (Array.isArray(currentUser.governorate) ? currentUser.governorate.join('، ') : currentUser.governorate || 'غير محدد');
+      : (Array.isArray(assigned) ? assigned.join('، ') : assigned || 'غير محدد');
 
     const wrapper = document.createElement('div');
     wrapper.id = 'sessionAccessCard';
@@ -123,7 +129,7 @@
           <i class="fa-solid fa-user-shield"></i>
         </div>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-extrabold text-gray-800 truncate">${currentUser.fullName || currentUser.username || 'مستخدم'}</div>
+          <div class="text-sm font-extrabold text-gray-800 truncate">${getDisplayName(currentUser)}</div>
           <div class="text-xs text-gray-500 mt-1">${currentUser.role === 'admin' ? 'مسؤول النظام' : 'عرض حسب الصلاحية'}</div>
           <div class="text-xs text-gray-600 mt-1 break-words">المحافظة: ${govText}</div>
         </div>
@@ -139,106 +145,118 @@
     const assignedList = getAssignedGovernoratesList();
     if (!assignedList.length) return;
 
-    if (assignedList.length === 1) {
-      selector.innerHTML = `<option value="${assignedList[0]}">${assignedList[0]}</option>`;
-      selector.value = assignedList[0];
-    } else {
-      selector.innerHTML = `<option value="all">كل المحافظات المسموح بها</option>`;
-      selector.value = 'all';
+    selector.innerHTML = '';
+    if (assignedList.length > 1) {
+      const allOption = document.createElement('option');
+      allOption.value = 'all';
+      allOption.textContent = 'كل المحافظات المسموح بها';
+      selector.appendChild(allOption);
     }
+
+    assignedList.forEach((gov) => {
+      const option = document.createElement('option');
+      option.value = gov;
+      option.textContent = gov;
+      selector.appendChild(option);
+    });
+
+    selector.value = assignedList.length === 1 ? assignedList[0] : 'all';
     selector.disabled = true;
     selector.classList.add('opacity-70', 'cursor-not-allowed');
+  }
+
+  function setNavVisibility(id, shouldShow) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (shouldShow) {
+      el.classList.remove('hidden', 'display-none');
+      el.style.display = '';
+      el.removeAttribute('aria-hidden');
+    } else {
+      el.style.display = 'none';
+      el.classList.add('hidden');
+      el.setAttribute('aria-hidden', 'true');
+    }
   }
 
   function applyUIPermissions() {
     if (!currentUser) return;
 
     const isAdmin = currentUser.role === 'admin';
+    const permissionValue = (key, defaultValue = true) => {
+      if (isAdmin) return true;
+      return currentUser[key] === undefined ? defaultValue : currentUser[key] !== false;
+    };
 
-    // 1. التحكم في ظهور الصفحات (Navigation)
     const navMapping = [
-      { id: 'nav-home', perm: 'showHome' },
-      { id: 'nav-stats', perm: 'showStats' },
-      { id: 'nav-flow', perm: 'showFlow' },
-      { id: 'nav-style', perm: 'showStyle' },
-      { id: 'nav-personas', perm: 'showPersonas' },
-      { id: 'nav-users', perm: 'canManageUsers' }
+      { id: 'nav-home', perm: 'showHome', defaultValue: true },
+      { id: 'nav-stats', perm: 'showStats', defaultValue: true },
+      { id: 'nav-flow', perm: 'showFlow', defaultValue: true },
+      { id: 'nav-style', perm: 'showStyle', defaultValue: true },
+      { id: 'nav-personas', perm: 'showPersonas', defaultValue: true },
+      { id: 'nav-users', perm: 'canManageUsers', defaultValue: false }
     ];
 
-    navMapping.forEach(item => {
-      const el = document.getElementById(item.id);
-      if (el) {
-        if (isAdmin || currentUser[item.perm] !== false) {
-          el.classList.remove('hidden', 'display-none');
-          el.style.display = '';
-        } else {
-          el.style.display = 'none';
-          el.classList.add('hidden');
-        }
-      }
+    navMapping.forEach((item) => {
+      setNavVisibility(item.id, permissionValue(item.perm, item.defaultValue));
     });
 
-    // 2. صلاحيات الخريطة (Map Tools)
     const mapToolsMapping = [
-      { 
-        selector: '#btnDrawMarker, #btnDrawLine, #btnDrawPoly, #btnDrawRect, #btnDrawCircle, #btnAddCustomMap', 
-        perm: 'canDraw' 
+      {
+        selector: '#btnDrawMarker, #btnDrawLine, #btnDrawPoly, #btnDrawRect, #btnDrawCircle, #btnAddCustomMap',
+        perm: 'canDraw'
       },
-      { 
-        selector: '#btnCutMode, #btnDragMode', 
-        perm: 'canEditGeometry' 
+      {
+        selector: '#btnCutMode, #btnDragMode',
+        perm: 'canEditGeometry'
       },
-      { 
-        selector: '#btnDeleteMode', 
-        perm: 'canDeleteGeometry' 
+      {
+        selector: '#btnDeleteMode',
+        perm: 'canDeleteGeometry'
       }
     ];
 
-    mapToolsMapping.forEach(item => {
-      if (!isAdmin && currentUser[item.perm] === false) {
+    mapToolsMapping.forEach((item) => {
+      if (!permissionValue(item.perm, false)) {
         hideElement(item.selector);
       }
     });
 
-    // 3. صلاحيات البيانات (Side Panel)
-    const canEditData = isAdmin || currentUser.canEditData !== false;
-    const canEditStatus = isAdmin || currentUser.canEditStatus !== false;
+    const canEditData = permissionValue('canEditData', false);
+    const canEditStatus = permissionValue('canEditStatus', false);
 
     if (!canEditData && !canEditStatus) {
       hideElement('#attributesPanel');
       hideElement('#mapEditHint');
     } else {
-        // إذا كان يملك إحدى الصلاحيتين، نظهر اللوحة ولكن نقيد الحقول
-        const panel = document.getElementById('attributesPanel');
-        if (panel) {
-            const inputs = panel.querySelectorAll('input');
-            inputs.forEach(input => {
-                if (!canEditData) {
-                    input.disabled = true;
-                    input.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            });
+      const panel = document.getElementById('attributesPanel');
+      if (panel) {
+        const inputs = panel.querySelectorAll('input');
+        inputs.forEach((input) => {
+          if (!canEditData) {
+            input.disabled = true;
+            input.classList.add('opacity-50', 'cursor-not-allowed');
+          }
+        });
 
-            const statusSelect = panel.querySelector('select');
-            if (statusSelect && !canEditStatus) {
-                statusSelect.disabled = true;
-                statusSelect.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-            
-            const saveBtn = panel.querySelector('#saveAttributesBtn');
-            if (saveBtn && !canEditData && !canEditStatus) {
-                saveBtn.style.display = 'none';
-            }
+        const statusSelect = panel.querySelector('select');
+        if (statusSelect && !canEditStatus) {
+          statusSelect.disabled = true;
+          statusSelect.classList.add('opacity-50', 'cursor-not-allowed');
         }
+
+        const saveBtn = panel.querySelector('#saveAttributesBtn');
+        if (saveBtn && !canEditData && !canEditStatus) {
+          saveBtn.style.display = 'none';
+        }
+      }
     }
 
-    // 4. صلاحيات الأدوات (Export)
-    if (!isAdmin && currentUser.canExport === false) {
+    if (!permissionValue('canExport', false)) {
       hideElement('#btnExportPDF');
-      hideElement('#btnExportExcel'); // سنضيفه لاحقاً إذا وجد
+      hideElement('#btnExportExcel');
     }
 
-    // 5. قفل اختيار المحافظة في الإحصائيات
     const statsCompareBy = document.getElementById('statsCompareBy');
     if (statsCompareBy) applyGovernorateSelectorLock(statsCompareBy);
 
@@ -251,7 +269,7 @@
   };
 
   window.canEditCurrentUser = function () {
-    return currentUser && currentUser.role === 'admin';
+    return currentUser && (currentUser.role === 'admin' || currentUser.canManageUsers === true);
   };
   window.getAssignedGovernorate = function () {
     return getAssignedGovernorateRaw();
@@ -265,6 +283,9 @@
   window.isFeatureAllowed = isFeatureAllowed;
   window.filterGeoJSONByUser = filterGeoJSONByUser;
   window.applyGovernorateSelectorLock = applyGovernorateSelectorLock;
+  window.applyUIPermissions = applyUIPermissions;
 
-  document.addEventListener('DOMContentLoaded', applyUIPermissions);
+  document.addEventListener('DOMContentLoaded', () => {
+    applyUIPermissions();
+  });
 })();

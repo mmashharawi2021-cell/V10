@@ -1,59 +1,119 @@
 /**
  * @file users.js
- * @description Local database for user authentication and access control.
- * Rules:
- * - 'admin' role: Sees everything, has access to Edit Mode.
- * - 'viewer' role: Sees only their assigned governorate, Edit Mode is hidden.
+ * @description Local fallback database for user authentication and access control.
  */
 
 export const users = [
   {
-    username: "ibrahim",
-    password: "123", // You can change this
-    fullName: "إبراهيم الجملة (أبو كريم)",
-    role: "admin",
-    governorate: "all"
+    email: 'ibrahim@example.local',
+    username: 'ibrahim',
+    password: '123',
+    name: 'إبراهيم الجملة (أبو كريم)',
+    fullName: 'إبراهيم الجملة (أبو كريم)',
+    role: 'admin',
+    governorate: 'all',
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true,
+    canDraw: true,
+    canEditData: true,
+    canEditStatus: true,
+    canExport: true,
+    canManageUsers: true,
+    canEditGeometry: true,
+    canDeleteGeometry: true
   },
   {
-    username: "ebahtity",
-    password: "123",
-    fullName: "م. إيهاب البحتيطي",
-    role: "viewer",
-    governorate: ["غزة", "شمال غزة"]
+    email: 'ebahtity@example.local',
+    username: 'ebahtity',
+    password: '123',
+    name: 'م. إيهاب البحتيطي',
+    fullName: 'م. إيهاب البحتيطي',
+    role: 'viewer',
+    governorate: ['غزة', 'شمال غزة'],
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true
   },
   {
-    username: "neholy",
-    password: "123",
-    fullName: "م. نهاد الحولي",
-    role: "viewer",
-    governorate: "شمال غزة"
+    email: 'neholy@example.local',
+    username: 'neholy',
+    password: '123',
+    name: 'م. نهاد الحولي',
+    fullName: 'م. نهاد الحولي',
+    role: 'viewer',
+    governorate: 'شمال غزة',
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true
   },
   {
-    username: "ahamad",
-    password: "123",
-    fullName: "م. عبدالمجيد حمد",
-    role: "viewer",
-    governorate: "غزة"
+    email: 'ahamad@example.local',
+    username: 'ahamad',
+    password: '123',
+    name: 'م. عبدالمجيد حمد',
+    fullName: 'م. عبدالمجيد حمد',
+    role: 'viewer',
+    governorate: 'غزة',
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true
   },
   {
-    username: "mjarad",
-    password: "123",
-    fullName: "م. محمود أبو جراد",
-    role: "viewer",
-    governorate: "غزة"
+    email: 'mjarad@example.local',
+    username: 'mjarad',
+    password: '123',
+    name: 'م. محمود أبو جراد',
+    fullName: 'م. محمود أبو جراد',
+    role: 'viewer',
+    governorate: 'غزة',
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true
   },
   {
-    username: "jalkass",
-    password: "123",
-    fullName: "م. جمال أبو الكاس",
-    role: "viewer",
-    governorate: ["غزة", "شمال غزة"]
+    email: 'jalkass@example.local',
+    username: 'jalkass',
+    password: '123',
+    name: 'م. جمال أبو الكاس',
+    fullName: 'م. جمال أبو الكاس',
+    role: 'viewer',
+    governorate: ['غزة', 'شمال غزة'],
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true
   },
   {
-    username: "ehouda",
-    password: "123",
-    fullName: "م. إيهاب أبو عودة",
-    role: "viewer",
-    governorate: ["غزة", "شمال غزة"]
+    email: 'ehouda@example.local',
+    username: 'ehouda',
+    password: '123',
+    name: 'م. إيهاب أبو عودة',
+    fullName: 'م. إيهاب أبو عودة',
+    role: 'viewer',
+    governorate: ['غزة', 'شمال غزة'],
+    active: true,
+    showHome: true,
+    showStats: true,
+    showFlow: true,
+    showStyle: true,
+    showPersonas: true
   }
 ];

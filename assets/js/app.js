@@ -54,6 +54,22 @@ let chartsInitialized = false;
             };
         }
 
+        function normalizeGovernorateInput(value) {
+            if (Array.isArray(value)) {
+                return value.map(item => String(item || '').trim()).filter(Boolean);
+            }
+            const raw = String(value || '').trim();
+            if (!raw || raw.toLowerCase() === 'all') return 'all';
+            const parts = raw.split(/[,،]/).map(item => item.trim()).filter(Boolean);
+            if (!parts.length) return 'all';
+            return parts.length === 1 ? parts[0] : parts;
+        }
+
+        function formatGovernorateDisplay(value) {
+            if (Array.isArray(value)) return value.join('، ');
+            return value || 'all';
+        }
+
         // دالة لحقن مفتاح الخريطة برمجياً
         function injectMapLegend(containerId) {
             const container = document.getElementById(containerId);
@@ -177,44 +193,95 @@ let chartsInitialized = false;
         function hideLoader() {
             const loader = document.getElementById('loader');
             if (!loader) return;
+
+            // 1. تشغيل تأثير Flash السينمائي أولاً
+            const flash = document.getElementById('entryFlash');
+            if (flash) {
+                flash.classList.add('flash-active');
+                setTimeout(() => flash.classList.remove('flash-active'), 1200);
+            }
+
+            // 2. إخفاء الـ Loader بتزامن مع Flash
             loader.style.opacity = '0';
             loader.style.visibility = 'hidden';
             loader.style.pointerEvents = 'none';
             setTimeout(() => {
                 loader.style.display = 'none';
-                const homePage = document.getElementById('home');
-                if (homePage) homePage.classList.add('active');
+                // Only default to home if no other page is active
+                const activePage = document.querySelector('.page.active');
+                if (!activePage) {
+                    const homePage = document.getElementById('home');
+                    if (homePage) homePage.classList.add('active');
+                    const activeBtn = document.querySelector('.nav-btn.active');
+                    if(activeBtn) updateNavIndicator(activeBtn);
+                }
                 const topNav = document.getElementById('mainNav');
                 if (topNav) topNav.classList.add('animate__animated', 'animate__fadeIn');
-                const activeBtn = document.querySelector('.nav-btn.active');
-                if(activeBtn) updateNavIndicator(activeBtn);
                 if(window.mapInstance) window.mapInstance.invalidateSize();
             }, 600);
         }
 
-        // إخفاء شاشة التحميل بعد الانتهاء
+        // إخفاء شاشة التحميل بعد الانتهاء (4 ثوانٍ ثابتة - المسار الوحيد والصحيح)
         window.addEventListener('load', function() {
-            setTimeout(hideLoader, 1000);
+            const pct  = document.getElementById('loaderPct');
+            const circleProgress = document.getElementById('loaderCircleProgress');
+            const checks = [
+                document.getElementById('chk1'),
+                document.getElementById('chk2'),
+                document.getElementById('chk3'),
+                document.getElementById('chk4')
+            ];
+
+            // عداد النسبة المئوية
+            let count = 0;
+            const totalMs = 3400;
+            const step = 100 / (totalMs / 50);
+            
+            const checkThresholds = [15, 40, 65, 90]; // نسب مئوية لاكتمال المهام
+            let currentCheck = 0;
+
+            const counter = setInterval(() => {
+                count = Math.min(100, count + step);
+                if (pct) pct.textContent = Math.floor(count);
+                
+                if (circleProgress) {
+                    // محيط الدائرة = 2 * pi * 46 ≈ 289
+                    const offset = 289 - (289 * count) / 100;
+                    circleProgress.style.strokeDashoffset = offset;
+                }
+
+                // تفعيل المهام المنجزة (Checklist)
+                if (currentCheck < checks.length && count >= checkThresholds[currentCheck]) {
+                    const chk = checks[currentCheck];
+                    if (chk) {
+                        chk.classList.remove('opacity-40', 'translate-y-2');
+                        chk.classList.add('opacity-100', 'text-gray-800', 'translate-y-0');
+                        const icon = chk.querySelector('.check-icon');
+                        if (icon) {
+                            icon.classList.remove('bg-gray-200/80', 'text-gray-400', 'border-gray-300/50');
+                            icon.classList.add('bg-gradient-to-br', 'from-emerald-400', 'to-emerald-500', 'text-white', 'shadow-lg', 'shadow-emerald-500/40', 'border-transparent');
+                        }
+                    }
+                    currentCheck++;
+                }
+
+                if (count >= 100) clearInterval(counter);
+            }, 50);
+
+            // الإخفاء النهائي بعد 3.5 ثانية
+            setTimeout(() => {
+                clearInterval(counter);
+                hideLoader();
+            }, 3500);
         });
 
-        window.addEventListener('error', hideLoader);
-        window.addEventListener('unhandledrejection', hideLoader);
-
-        // fallback in case document events fire before this script loads
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            setTimeout(hideLoader, 50);
-        }
-
-        // fallback timer: hide loader after 3 ثوانٍ حتى لو تعذر على الأحداث السابقة العمل
-        setTimeout(hideLoader, 3000);
+        // في حالة فشل حدث load، نجعله 4.5 ثوانٍ كـ Fallback حتى لا يتعلق
+        setTimeout(hideLoader, 4500);
 
         // 1. التهيئة عند التحميل
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                hideLoader();
-            } catch(e) { console.error("Loader Error:", e); }
-            
-            try {
+                // لا نخفي الـ Loader هنا - ندع الـ Timer يتحكم فقط
                 const navButtons = document.querySelectorAll('.nav-btn');
                 const navContainer = document.getElementById('mainNav');
                 
@@ -300,6 +367,7 @@ let chartsInitialized = false;
 
         // 3. التبديل بين الصفحات
         function switchPage(pageId, btnElement) {
+            console.log('switchPage called:', pageId);
             try {
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.remove('text-blue-700', 'font-bold', 'active');
@@ -315,7 +383,11 @@ let chartsInitialized = false;
                 });
 
                 const targetPage = document.getElementById(pageId);
-                if(targetPage) targetPage.classList.add('active');
+                console.log('targetPage element:', targetPage);
+                if(targetPage) {
+                    targetPage.classList.add('active');
+                    console.log('Added active class to:', pageId);
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
                 // إعادة ضبط حجم الخريطة عند العودة للرئيسية أو التنقل للعرض
@@ -323,6 +395,8 @@ let chartsInitialized = false;
                     setTimeout(() => window.mapInstance.invalidateSize(), 300);
                 } else if (pageId === 'flow' && window.viewMapInstance) {
                     setTimeout(() => window.viewMapInstance.invalidateSize(), 300);
+                } else if (pageId === 'personas' && window.initPersonasDashboard) {
+                    window.initPersonasDashboard();
                 }
             } catch(e) { console.error("Switch Page Error:", e); }
         }
@@ -529,16 +603,6 @@ let chartsInitialized = false;
                     layout: { padding: { bottom: 20 } }
                 }
             });
-
-            /* الأنميشن الخاص بشريط التقدم */
-            const style = document.createElement('style');
-            style.innerHTML = `
-                @keyframes slide {
-                    from { background-position: 0 0; }
-                    to { background-position: 30px 30px; }
-                }
-            `;
-            document.head.appendChild(style);
 
             const ctxLine = document.getElementById('lineChart').getContext('2d');
             let gradient = ctxLine.createLinearGradient(0, 0, 0, 300);
@@ -816,7 +880,7 @@ let chartsInitialized = false;
 
             function updateUndoButtonVisibility() {
                 if (!undoBtn) return;
-                if (window.currentUser && window.currentUser.username === 'ibrahim') {
+                if (window.currentUser && window.currentUser.role === 'admin') {
                     undoBtn.classList.remove('hidden');
                 } else {
                     undoBtn.classList.add('hidden');
@@ -1610,15 +1674,15 @@ let chartsInitialized = false;
                                <div class="flex flex-col gap-4">
                                    <div>
                                        <div class="flex justify-between text-sm mb-1 font-semibold text-gray-700"><span>مكتمل</span> <span id="stat-v-comp">0 زون</span></div>
-                                       <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner"><div id="bar-comp" class="bg-gradient-to-l from-green-400 to-green-600 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div></div>
+                                       <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner overflow-hidden"><div id="bar-comp" class="bg-gradient-to-l from-green-400 to-green-600 h-full rounded-full transition-all duration-1000 ease-out relative" style="width: 0%"><div class="progress-bar-stripes rounded-full opacity-70"></div></div></div>
                                    </div>
                                    <div>
                                        <div class="flex justify-between text-sm mb-1 font-semibold text-gray-700"><span>قيد العمل</span> <span id="stat-v-prog">0 زون</span></div>
-                                       <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner"><div id="bar-prog" class="bg-gradient-to-l from-orange-400 to-orange-500 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div></div>
+                                       <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner overflow-hidden"><div id="bar-prog" class="bg-gradient-to-l from-orange-400 to-orange-500 h-full rounded-full transition-all duration-1000 ease-out relative" style="width: 0%"><div class="progress-bar-stripes rounded-full opacity-70"></div></div></div>
                                    </div>
                                    <div>
                                        <div class="flex justify-between text-sm mb-1 font-semibold text-gray-700"><span>لم يبدأ</span> <span id="stat-v-none">0 زون</span></div>
-                                       <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner"><div id="bar-none" class="bg-gradient-to-l from-red-400 to-red-600 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div></div>
+                                       <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner overflow-hidden"><div id="bar-none" class="bg-gradient-to-l from-red-400 to-red-600 h-full rounded-full transition-all duration-1000 ease-out relative" style="width: 0%"><div class="progress-bar-stripes rounded-full opacity-70"></div></div></div>
                                    </div>
                                </div>
                            </div>
@@ -1630,7 +1694,7 @@ let chartsInitialized = false;
                                </div>
                                <div class="w-full bg-indigo-100/50 rounded-full h-4 shadow-inner overflow-hidden border border-indigo-200">
                                    <div id="bar-total" class="bg-gradient-to-l from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(99,102,241,0.5)] relative" style="width: 0%">
-                                     <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                                 <div class="progress-bar-stripes rounded-full opacity-80"></div>
                                    </div>
                                </div>
                                <p class="text-xs text-gray-500 mt-3 text-center">تعكس النسبة الفرق الرياضي الفعلي بين الزونات المنجزة مقارنة بالباقي.</p>
@@ -1718,6 +1782,7 @@ let chartsInitialized = false;
                     govData = filterGeoJsonDataForCurrentUser(govData, 'gov');
                     zoneData = filterGeoJsonDataForCurrentUser(zoneData, 'zone');
 
+                    const govStyle = { color: '#2c3e50', weight: 4, fillOpacity: 0.05, interactive: false };
                     const zoneLayer = L.geoJSON(zoneData, { style: getZoneStyle });
                     const govLayer = L.geoJSON(govData, { style: govStyle });
                     layoutMapDataLayer = L.featureGroup([zoneLayer, govLayer]).addTo(layoutMap);
@@ -1970,8 +2035,20 @@ let chartsInitialized = false;
                     e.preventDefault();
                     const dx = e.clientX - startX;
                     const dy = e.clientY - startY;
-                    activeEl.style.left = (initX + dx) + 'px';
-                    activeEl.style.top = (initY + dy) + 'px';
+                    
+                    let newX = initX + dx;
+                    let newY = initY + dy;
+                    
+                    // منع خروج العناصر خارج إطار الورقة
+                    const parentRect = activeEl.parentElement.getBoundingClientRect();
+                    
+                    if (newX < 0) newX = 0;
+                    if (newY < 0) newY = 0;
+                    if (newX + activeEl.offsetWidth > parentRect.width) newX = parentRect.width - activeEl.offsetWidth;
+                    if (newY + activeEl.offsetHeight > parentRect.height) newY = parentRect.height - activeEl.offsetHeight;
+
+                    activeEl.style.left = newX + 'px';
+                    activeEl.style.top = newY + 'px';
                 }
 
                 function onDragEnd() {
@@ -1993,6 +2070,55 @@ let chartsInitialized = false;
                 });
             }
             
+            // إعداد أنماط سهم الشمال برمجياً
+            const northArrowStyles = [
+                // النمط 1 (الافتراضي - بوصلة ماسية)
+                `<g id="northArrowShape1"><polygon points="50,5 65,45 50,85 35,45" fill="var(--na-color, #1f2937)" /><polygon points="50,5 50,85 35,45" fill="var(--na-color-light, #9ca3af)" /></g><text x="50" y="98" font-family="'Cairo', sans-serif" font-size="20" font-weight="900" text-anchor="middle" fill="var(--na-color, #1f2937)">N</text>`,
+                // النمط 2 (سهم بسيط)
+                `<g id="northArrowShape2"><path d="M50 5 L25 45 L40 45 L40 95 L60 95 L60 45 L75 45 Z" fill="var(--na-color, #1f2937)"/></g>`,
+                // النمط 3 (دائري كلاسيكي)
+                `<g id="northArrowShape3"><circle cx="50" cy="50" r="45" fill="none" stroke="var(--na-color, #1f2937)" stroke-width="3"/><polygon points="50,5 65,50 50,95 35,50" fill="var(--na-color, #1f2937)" /><polygon points="50,5 50,95 35,50" fill="var(--na-color-light, #9ca3af)" /></g>`,
+                // النمط 4 (حديث / مجرد)
+                `<g id="northArrowShape4"><path d="M50 10 L80 85 L50 70 L20 85 Z" fill="var(--na-color, #1f2937)"/><path d="M50 10 L50 70 L20 85 Z" fill="var(--na-color-light, #9ca3af)"/></g><text x="50" y="98" font-family="'Cairo', sans-serif" font-size="16" font-weight="900" text-anchor="middle" fill="var(--na-color, #1f2937)">N</text>`,
+                // النمط 5 (حرف N كبير)
+                `<text x="50" y="80" font-family="'Times New Roman', serif" font-size="85" font-weight="900" text-anchor="middle" fill="var(--na-color, #1f2937)">N</text>`
+            ];
+
+            const styleButtons = document.querySelectorAll('#propNorthArrow .grid button:not(:last-child)');
+            const naSvg = document.getElementById('northArrowSvg');
+
+            if(styleButtons.length > 0 && naSvg) {
+                styleButtons.forEach((btn, index) => {
+                    btn.addEventListener('click', () => {
+                        // إزالة التفعيل من الأزرار الأخرى
+                        styleButtons.forEach(b => {
+                            b.classList.remove('border-orange-500', 'bg-orange-50', 'shadow-sm', 'text-gray-800');
+                            b.classList.add('border-gray-200', 'hover:bg-gray-50', 'text-gray-700');
+                        });
+                        // تفعيل الزر المختار
+                        btn.classList.add('border-orange-500', 'bg-orange-50', 'shadow-sm', 'text-gray-800');
+                        btn.classList.remove('border-gray-200', 'hover:bg-gray-50', 'text-gray-700');
+                        // تحديث شكل السهم
+                        if(northArrowStyles[index]) naSvg.innerHTML = northArrowStyles[index];
+                    });
+                });
+            }
+
+            // ربط شريط التحكم في الحجم الكلي
+            const sizeSlider = document.querySelector('#propNorthArrow input[type="range"]');
+            if(sizeSlider) {
+                const sizeLabel = sizeSlider.parentElement.querySelector('.bg-orange-100');
+                sizeSlider.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    if(sizeLabel) sizeLabel.textContent = `${val}%`;
+                    if(layoutNorthArrow) {
+                        const scale = val / 85;
+                        layoutNorthArrow.style.width = `${64 * scale}px`;
+                        layoutNorthArrow.style.height = `${80 * scale}px`;
+                    }
+                });
+            }
+
             const rotationInput = document.querySelector('#propNorthArrow input[type="number"]');
             if(rotationInput) {
                 rotationInput.addEventListener('input', (e) => {
@@ -2101,7 +2227,7 @@ let chartsInitialized = false;
             // ================= إدارة المستخدمين (User Management) ================= //
             function initUserManagement() {
                 const navUsers = document.getElementById('nav-users');
-                if (!window.currentUser || window.currentUser.role !== 'admin') return;
+                if (!window.currentUser || (window.currentUser.role !== 'admin' && window.currentUser.canManageUsers !== true)) return;
 
                 const usersTableBody = document.getElementById('usersTableBody');
                 const addUserBtn = document.getElementById('addUserBtn');
@@ -2151,23 +2277,26 @@ let chartsInitialized = false;
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">${user.name ? user.name[0] : (user.email ? user.email[0].toUpperCase() : 'U')}</div>
-                                    <span class="font-bold text-gray-800">${user.name || 'مراقب'}</span>
+                                    <div class="flex flex-col text-right"><span class="font-bold text-gray-800">${user.name || 'مراقب'}</span><span class="text-xs text-gray-400" dir="ltr">@${user.username || 'user'}</span></div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-gray-500 font-medium truncate max-w-[200px]">${user.email}</td>
                             <td class="px-6 py-4">
                                 <span class="px-3 py-1 rounded-full text-xs font-bold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${user.role === 'admin' ? 'مدير' : 'مراقب'}</span>
                             </td>
-                            <td class="px-6 py-4 text-gray-600 font-medium">${user.governorate || 'all'}</td>
+                            <td class="px-6 py-4 text-gray-600 font-medium">${formatGovernorateDisplay(user.governorate)}</td>
                             <td class="px-6 py-4 text-center">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" class="sr-only peer status-toggle" ${user.active !== false ? 'checked' : ''} data-email="${user.email}">
                                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                                 </label>
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-6 py-4 text-center space-x-2 space-x-reverse">
                                 <button class="edit-user-btn text-blue-500 hover:text-blue-700 transition-colors p-2" data-email="${user.email}">
                                     <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="delete-user-btn text-red-500 hover:text-red-700 transition-colors p-2" data-email="${user.email}" title="حذف">
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </td>
                         </tr>
@@ -2182,6 +2311,27 @@ let chartsInitialized = false;
                         });
                     });
 
+                    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const email = btn.dataset.email;
+                            if(confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟')) {
+                                if (window.deleteUserFromFirestore) {
+                                    try {
+                                        const result = await window.deleteUserFromFirestore(email);
+                                        if(result.success) {
+                                            showToast('تم حذف المستخدم بنجاح', 'success');
+                                            loadUsers();
+                                        } else {
+                                            showToast(result.message || 'حدث خطأ أثناء الحذف', 'red');
+                                        }
+                                    } catch(err) {
+                                        showToast('فشل الاتصال بقاعدة البيانات', 'red');
+                                    }
+                                }
+                            }
+                        });
+                    });
+
                     document.querySelectorAll('.status-toggle').forEach(toggle => {
                         toggle.addEventListener('change', async () => {
                             const email = toggle.dataset.email;
@@ -2189,8 +2339,13 @@ let chartsInitialized = false;
                             const user = users.find(u => u.email === email);
                             if (user && window.saveUserToFirestore) {
                                 try {
-                                    await window.saveUserToFirestore({ ...user, active });
-                                    showToast(active ? 'تم تفعيل الحساب' : 'تم تعطيل الحساب', 'success');
+                                    const result = await window.saveUserToFirestore({ ...user, active });
+                                    if(result && result.success) {
+                                        showToast(active ? 'تم تفعيل الحساب' : 'تم تعطيل الحساب', 'success');
+                                    } else {
+                                        showToast(result ? result.message : 'فشل في تحديث الحالة', 'red');
+                                        toggle.checked = !active; // التراجع في حالة الفشل
+                                    }
                                 } catch (err) {
                                     showToast('فشل في تحديث الحالة', 'red');
                                     toggle.checked = !active; // Revert
@@ -2211,12 +2366,13 @@ let chartsInitialized = false;
                     document.getElementById('userModalTitle').innerText = isEditing ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد';
                     
                     document.getElementById('userName').value = user ? (user.name || '') : '';
+                    document.getElementById('userUsername').value = user ? (user.username || '') : '';
                     document.getElementById('userEmail').value = user ? user.email : '';
                     document.getElementById('userEmail').readOnly = isEditing;
                     document.getElementById('userPassword').value = '';
                     document.getElementById('userPassword').required = !isEditing;
                     document.getElementById('userRole').value = user ? (user.role || 'viewer') : 'viewer';
-                    document.getElementById('userGov').value = user ? (user.governorate || 'all') : 'all';
+                    document.getElementById('userGov').value = user ? formatGovernorateDisplay(user.governorate) : 'all';
                     document.getElementById('userActive').checked = user ? (user.active !== false) : true;
 
                     // تعبئة الصلاحيات
@@ -2260,9 +2416,10 @@ let chartsInitialized = false;
 
                         const userData = {
                             name: document.getElementById('userName').value.trim(),
-                            email: document.getElementById('userEmail').value.trim(),
+                            username: document.getElementById('userUsername').value.trim().toLowerCase(),
+                            email: document.getElementById('userEmail').value.trim().toLowerCase(),
                             role: document.getElementById('userRole').value,
-                            governorate: document.getElementById('userGov').value.trim(),
+                            governorate: normalizeGovernorateInput(document.getElementById('userGov').value),
                             active: document.getElementById('userActive').checked
                         };
 
@@ -2306,8 +2463,7 @@ let chartsInitialized = false;
             }
 
             // Call initialization if admin
-            if (window.currentUser && window.currentUser.role === 'admin') {
+            if (window.currentUser && (window.currentUser.role === 'admin' || window.currentUser.canManageUsers === true)) {
                 initUserManagement();
             }
         }
-

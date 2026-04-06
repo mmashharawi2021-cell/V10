@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <script src="access-control.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة متابعة الحصر الميداني - غزة</title>
+    <!-- أيقونة الموقع لمنع خطأ 404 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+    <title>منظومة متابعة الحصر الميداني - غزة</title>
     <!-- إطار عمل Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- خطوط جوجل: Cairo -->
@@ -13,27 +16,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- مكتبة Chart.js للرسوم البيانية -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- مكتبة Animate.css للحركات البصرية -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
     <!-- مكتبة Leaflet و Esri Leaflet كبديل آمن للعمل داخل الإطارات المحمية -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- مكتبة Leaflet Geoman لتعديل الأشكال -->
     <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
     <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+
+    <!-- RBush for Spatial Indexing & Lucide Icons for Personas Board -->
+    <script src="https://unpkg.com/rbush@3.0.1/rbush.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { firebaseConfig } from './firebase-config.js';
-        import { initializeFirebase, saveZoneUpdate, loadAllZoneUpdates, getAllUsers, saveUserToFirestore } from './firebase-operations.js';
-        
+        import { initializeFirebase, saveZoneUpdate, loadAllZoneUpdates, getAllUsers, saveUserToFirestore, deleteUserFromFirestore } from './firebase-operations.js';
+
         const app = initializeApp(firebaseConfig);
         window.db = getFirestore(app);
         window.firebaseInit = initializeFirebase(app);
@@ -41,22 +48,94 @@
         window.loadAllZoneUpdates = loadAllZoneUpdates;
         window.getAllUsers = getAllUsers;
         window.saveUserToFirestore = saveUserToFirestore;
+        window.deleteUserFromFirestore = deleteUserFromFirestore;
     </script>
 
     <script src="assets/js/tailwind-config.js"></script>
 
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/personas.css?v=3">
 </head>
+
 <body class="relative min-h-screen pb-20">
 
-    <!-- شاشة التحميل -->
+    <!-- شاشة التحميل الاستراتيجية المتكاملة -->
     <div id="loader">
-        <div class="glass-panel p-10 rounded-3xl flex flex-col items-center shadow-2xl animate-pulse">
-            <div class="loader-spinner mb-6"></div>
-            <h2 class="text-2xl font-bold text-blue-600 tracking-wider">جاري التحميل...</h2>
-            <p class="text-gray-500 mt-2 font-semibold text-center">تهيئة الإحصائيات والخريطة التفاعلية</p>
+        <!-- شبكة الخلفية التكتيكية SVG -->
+        <svg class="loader-grid" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+                <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(59,130,246,0.07)" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+
+        <!-- نقاط الزينة -->
+        <div class="loader-orb loader-orb-1"></div>
+        <div class="loader-orb loader-orb-2"></div>
+
+        <!-- المحتوى المركزي -->
+        <div class="loader-center w-full max-w-md px-6">
+            
+            <!-- الدائرة ومؤشر التقدم -->
+            <div class="relative w-36 h-36 mx-auto mb-8 flex items-center justify-center">
+                <svg class="absolute inset-0 w-full h-full transform -rotate-90 drop-shadow-lg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(37,99,235,0.15)" stroke-width="6" />
+                    <circle id="loaderCircleProgress" cx="50" cy="50" r="46" fill="none" stroke="url(#progressGradient)" stroke-width="6" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289" class="transition-all duration-75 ease-linear" />
+                    <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#1d4ed8" />
+                            <stop offset="100%" stop-color="#60a5fa" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="w-24 h-24 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl border border-white/60 z-10 relative">
+                    <div class="absolute inset-0 rounded-full bg-blue-500/10 animate-ping"></div>
+                    <!-- صورة خريطة فلسطين -->
+                    <img src="palestine.png" alt="خريطة فلسطين" class="w-16 h-16 object-contain drop-shadow-xl z-10 relative transform hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="absolute -bottom-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-black px-4 py-1 rounded-full z-20 shadow-lg border border-blue-400/50">
+                    <span id="loaderPct">0</span>%
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-black text-gray-800 mb-8 drop-shadow-sm text-center tracking-tight">جاري تحميل الخريطة...</h2>
+
+            <!-- تفاصيل العمليات (Checklist) -->
+            <div class="w-full bg-white/50 backdrop-blur-xl rounded-3xl p-6 border border-white/70 shadow-2xl flex flex-col gap-4 text-sm font-bold text-gray-600 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-400 opacity-50"></div>
+                
+                <div class="check-item flex items-center gap-4 opacity-40 transition-all duration-500 transform translate-y-2" id="chk1">
+                    <div class="check-icon w-7 h-7 rounded-full bg-gray-200/80 text-gray-400 flex items-center justify-center transition-all duration-500 border border-gray-300/50 shrink-0"><i class="fa-solid fa-check text-xs"></i></div>
+                    <span>تهيئة قواعد البيانات الجيومكانية</span>
+                </div>
+                <div class="check-item flex items-center gap-4 opacity-40 transition-all duration-500 transform translate-y-2" id="chk2">
+                    <div class="check-icon w-7 h-7 rounded-full bg-gray-200/80 text-gray-400 flex items-center justify-center transition-all duration-500 border border-gray-300/50 shrink-0"><i class="fa-solid fa-check text-xs"></i></div>
+                    <span>تحميل مصفوفات التحليل المكاني</span>
+                </div>
+                <div class="check-item flex items-center gap-4 opacity-40 transition-all duration-500 transform translate-y-2" id="chk3">
+                    <div class="check-icon w-7 h-7 rounded-full bg-gray-200/80 text-gray-400 flex items-center justify-center transition-all duration-500 border border-gray-300/50 shrink-0"><i class="fa-solid fa-check text-xs"></i></div>
+                    <span>مزامنة طبقات الخرائط والمناطق</span>
+                </div>
+                <div class="check-item flex items-center gap-4 opacity-40 transition-all duration-500 transform translate-y-2" id="chk4">
+                    <div class="check-icon w-7 h-7 rounded-full bg-gray-200/80 text-gray-400 flex items-center justify-center transition-all duration-500 border border-gray-300/50 shrink-0"><i class="fa-solid fa-check text-xs"></i></div>
+                    <span>تفعيل نظام المراقبة الاستراتيجي</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- الجهة التابعة -->
+        <div class="absolute bottom-8 w-full text-center z-10 flex flex-col items-center gap-2 animate-fade-in delay-500">
+            <h3 class="text-sm md:text-base font-extrabold text-gray-800 drop-shadow-sm tracking-wide">الهيئة العربية الدولية للإعمار في فلسطين</h3>
+            <p class="text-xs md:text-sm font-bold text-blue-700 bg-blue-100/70 backdrop-blur px-4 py-1.5 rounded-full border border-blue-200 shadow-sm inline-flex items-center gap-2">
+                <i class="fa-solid fa-layer-group"></i> قسم نظم المعلومات الجغرافية (GIS)
+            </p>
         </div>
     </div>
+
+    <!-- تأثير الدخول السينمائي (Flash + Shockwave) -->
+    <div id="entryFlash"></div>
 
     <!-- الأشكال الزجاجية في الخلفية -->
     <div class="shape shape-1"></div>
@@ -65,21 +144,24 @@
     <div class="shape shape-4"></div>
 
     <!-- لوحة البيانات الوصفية (Attributes Editor) - الشريط الجانبي الأيمن -->
-    <div id="attributesPanel" class="fixed top-0 right-0 w-full sm:w-[420px] h-full glass-panel z-[99999] transform translate-x-full transition-transform duration-500 shadow-2xl border-l border-white/60 overflow-y-auto hidden-panel">
+    <div id="attributesPanel"
+        class="fixed top-0 right-0 w-full sm:w-[420px] h-full glass-panel z-[99999] transform translate-x-full transition-transform duration-500 shadow-2xl border-l border-white/60 overflow-y-auto hidden-panel">
         <div class="p-8 relative min-h-full flex flex-col bg-white/20">
-            <button id="closeAttrPanel" class="absolute top-6 left-6 text-gray-500 hover:text-red-500 transition-colors z-20">
+            <button id="closeAttrPanel"
+                class="absolute top-6 left-6 text-gray-500 hover:text-red-500 transition-colors z-20">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
             <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200/50 pb-4">
                 <i class="fa-solid fa-database text-blue-500 ml-2"></i>تعديل الخصائص
             </h3>
-            
+
             <div id="attributesContainer" class="flex flex-col gap-4 mb-24 flex-grow">
                 <!-- Data fields dynamically injected here -->
             </div>
 
             <div class="mt-auto block">
-                <button id="saveAttributesBtn" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all z-10">
+                <button id="saveAttributesBtn"
+                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all z-10">
                     حفظ التعديلات <i class="fa-solid fa-check ml-2"></i>
                 </button>
             </div>
@@ -87,20 +169,23 @@
     </div>
 
     <!-- لوحة إحصائيات الخريطة (Map Statistics Panel) - الشريط الجانبي الأيسر -->
-    <div id="mapStatsPanel" class="fixed top-0 left-0 w-full sm:w-[450px] h-full glass-panel z-[99999] transform -translate-x-full transition-transform duration-500 shadow-2xl border-r border-white/60 overflow-y-auto hidden-panel">
+    <div id="mapStatsPanel"
+        class="fixed top-0 left-0 w-full sm:w-[450px] h-full glass-panel z-[99999] transform -translate-x-full transition-transform duration-500 shadow-2xl border-r border-white/60 overflow-y-auto hidden-panel">
         <div class="p-8 relative min-h-full flex flex-col bg-white/20">
-            <button id="closeStatsPanel" class="absolute top-6 left-6 text-gray-500 hover:text-red-500 transition-colors z-20">
+            <button id="closeStatsPanel"
+                class="absolute top-6 left-6 text-gray-500 hover:text-red-500 transition-colors z-20">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
             <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200/50 pb-4 text-right" dir="rtl">
                 إحصائيات الخريطة <i class="fa-solid fa-chart-pie text-indigo-500 ml-2"></i>
             </h3>
-            
+
             <!-- Governorate Selector -->
             <div class="mb-4" dir="rtl">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">اختر المحافظة لعرض إحصائياتها:</label>
                 <div class="relative">
-                    <select id="statsCompareBy" class="block w-full appearance-none bg-white/50 border border-gray-200 text-gray-700 py-3 px-4 pl-8 rounded-xl leading-tight focus:outline-none focus:bg-white focus:border-indigo-500 shadow-sm transition-colors text-sm font-semibold cursor-pointer">
+                    <select id="statsCompareBy"
+                        class="block w-full appearance-none bg-white/50 border border-gray-200 text-gray-700 py-3 px-4 pl-8 rounded-xl leading-tight focus:outline-none focus:bg-white focus:border-indigo-500 shadow-sm transition-colors text-sm font-semibold cursor-pointer">
                         <option value="all">جميع المحافظات (الكل)</option>
                         <!-- سيتم تعبئة المحافظات ديناميكياً -->
                     </select>
@@ -109,16 +194,17 @@
                     </div>
                 </div>
             </div>
-            
+
             <div id="mapStatsContainer" class="flex flex-col gap-6 mb-24 flex-grow" dir="rtl">
                 <div class="text-center text-gray-500 mt-10" id="mapStatsLoader">
                     <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3"></i>
                     <p>جاري سحب الإحصائيات...</p>
                 </div>
             </div>
-            
+
             <div class="mt-auto block">
-                <button id="btnCloseStats" class="w-full bg-white/60 text-gray-700 font-bold py-4 rounded-xl shadow hover:bg-white/80 transition-all z-10">
+                <button id="btnCloseStats"
+                    class="w-full bg-white/60 text-gray-700 font-bold py-4 rounded-xl shadow hover:bg-white/80 transition-all z-10">
                     إغلاق اللوحة
                 </button>
             </div>
@@ -127,127 +213,177 @@
 
     <!-- شريط التنقل العلوي -->
     <nav id="mainNav" class="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 animate-fade-in">
-        <div class="glass-panel nav-indicator-container backdrop-blur-xl px-2 py-2 rounded-full flex items-center shadow-2xl border-white/40 relative">
+        <div
+            class="glass-panel nav-indicator-container backdrop-blur-xl px-2 py-2 rounded-full flex items-center shadow-2xl border-white/40 relative">
             <!-- المؤشر المتحرك الزجاجي -->
-            <div class="nav-indicator absolute bg-blue-500/10 border border-blue-500/20 rounded-full transition-all duration-500 ease-out" id="navIndicator"></div>
-            
-            <button id="nav-home" onclick="switchPage('home', this)" class="nav-btn active px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-blue-700">
-                <i class="fa-solid fa-house-chimney"></i> الرئيسية
+            <div class="nav-indicator absolute bg-blue-500/10 border border-blue-500/20 rounded-full transition-all duration-500 ease-out"
+                id="navIndicator"></div>
+
+            <button id="nav-home" onclick="switchPage('home', this)"
+                class="nav-btn active px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-blue-700">
+                <i class="fa-solid fa-pen-to-square"></i> محرر الخرائط
             </button>
-            <button id="nav-stats" onclick="switchPage('process', this)" class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
-                <i class="fa-solid fa-chart-pie"></i> الإحصائيات والمراحل
+            <button id="nav-stats" onclick="switchPage('process', this)"
+                class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
+                <i class="fa-solid fa-chart-bar"></i> الإحصاء التحليلي
             </button>
-            <button id="nav-flow" onclick="switchPage('flow', this)" class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
-                <i class="fa-solid fa-map-location-dot"></i> العرض والشرح
+            <button id="nav-flow" onclick="switchPage('flow', this)"
+                class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
+                <i class="fa-solid fa-map-location-dot"></i> عرض البيانات
             </button>
-            <button id="nav-style" onclick="switchPage('style', this)" class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
-                <i class="fa-solid fa-palette"></i> الهوية
+            <button id="nav-style" onclick="switchPage('style', this)"
+                class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
+                <i class="fa-solid fa-palette"></i> التحليل الذكي
             </button>
-            <button id="nav-personas" onclick="switchPage('personas', this)" class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
-                <i class="fa-solid fa-users"></i> الشخصيات
+            <button id="nav-personas" onclick="switchPage('personas', this)"
+                class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 relative z-10 text-gray-600 hover:text-blue-600">
+                <i class="fa-solid fa-users"></i> مخرجات الحصر
             </button>
-            <button id="nav-users" onclick="switchPage('users', this)" class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 hidden relative z-10 text-gray-600 hover:text-blue-600">
-                <i class="fa-solid fa-users-gear"></i> الإدارة
+            <button id="nav-users" onclick="switchPage('users', this)"
+                class="nav-btn px-6 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 hidden relative z-10 text-gray-600 hover:text-blue-600">
+                <i class="fa-solid fa-users-gear"></i> مركز التحكم
             </button>
         </div>
     </nav>
 
     <!-- حاوية الصفحات -->
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pages-wrapper">
-        
+
         <!-- ================= الصفحة الأولى: الرئيسية ================= -->
         <div id="home" class="page">
             <!-- الخريطة التفاعلية -->
             <section class="mb-10 relative">
                 <div class="glass-panel p-8 md:p-10 rounded-3xl shadow-lg border-white/60">
-                    <div class="text-center mb-8">
-                        <h2 class="text-3xl font-bold text-gray-800"><i class="fa-solid fa-earth-americas text-blue-500 ml-3"></i>خريطة غزة التفاعلية</h2>
-                        <p class="text-gray-500 mt-2">عرض صور الأقمار الصناعية المباشرة (ArcGIS MapServer)</p>
+                    <div class="text-center mb-8 animate-fade-in delay-100">
+                        <h2 class="text-3xl font-bold text-gray-800"><i
+                                class="fa-solid fa-pen-to-square text-blue-500 ml-3"></i>محرر الخرائط التفاعلي</h2>
+                        <p class="text-gray-500 mt-2">تحرير ورسم مباشر على البيانات الجيومكانية</p>
                     </div>
-                    
+
                     <!-- أدوات التعديل الخارجية (Custom Edit Toolbar) -->
-                    <div class="flex flex-wrap gap-3 mb-6 relative z-20 justify-center">
-                        <button id="btnDrawMarker" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                    <div class="flex flex-wrap gap-3 mb-6 relative z-20 justify-center animate-fade-in delay-200">
+                        <button id="btnDrawMarker"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-location-dot ml-2 text-lg text-blue-500"></i>علامة
                         </button>
-                        <button id="btnDrawLine" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnDrawLine"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-route ml-2 text-lg text-blue-500"></i>مسار
                         </button>
-                        
+
                         <!-- قائمة الطبقات المنسدلة (Map Layers Dropdown) -->
                         <div class="relative group">
-                            <button class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                            <button
+                                class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                                 <i class="fa-solid fa-layer-group ml-2 text-lg text-blue-500"></i>الطبقات
                                 <i class="fa-solid fa-chevron-down mr-2 text-xs opacity-70"></i>
                             </button>
-                            <div class="absolute right-0 top-full mt-2 w-64 glass-panel rounded-xl shadow-xl border-white/70 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:scale-100 scale-95 flex flex-col gap-2 p-4 z-[999] text-right">
-                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1">خرائط الأساس (Basemaps)</h3>
+                            <div
+                                class="absolute right-0 top-full mt-2 w-64 glass-panel rounded-xl shadow-xl border-white/70 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:scale-100 scale-95 flex flex-col gap-2 p-4 z-[999] text-right">
+                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1">خرائط
+                                    الأساس (Basemaps)</h3>
                                 <div class="flex flex-col gap-2 mb-2">
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="basemap" value="light" class="form-radio text-blue-500 w-4 h-4" checked>
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">الضوء (Carto Light)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="basemap" value="light"
+                                            class="form-radio text-blue-500 w-4 h-4" checked>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">الضوء
+                                            (Carto Light)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="basemap" value="dark" class="form-radio text-blue-500 w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">الظلام (Carto Dark)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="basemap" value="dark"
+                                            class="form-radio text-blue-500 w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">الظلام
+                                            (Carto Dark)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="basemap" value="satellite" class="form-radio text-blue-500 w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">صور الأقمار (Esri Satellite)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="basemap" value="satellite"
+                                            class="form-radio text-blue-500 w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">صور
+                                            الأقمار (Esri Satellite)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="basemap" value="osm" class="form-radio text-blue-500 w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">خريطة الشوارع (OSM)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="basemap" value="osm"
+                                            class="form-radio text-blue-500 w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">خريطة
+                                            الشوارع (OSM)</span>
                                     </label>
                                 </div>
-                                
-                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1 mt-1">الطبقات الإضافية (Overlays)</h3>
+
+                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1 mt-1">
+                                    الطبقات الإضافية (Overlays)</h3>
                                 <div class="flex flex-col gap-2">
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="checkbox" id="toggleLayer2" class="form-checkbox text-blue-500 rounded w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">تحديث غزة (11/2025)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="checkbox" id="toggleLayer2"
+                                            class="form-checkbox text-blue-500 rounded w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">تحديث
+                                            غزة (11/2025)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="checkbox" id="toggleGov" class="form-checkbox text-blue-500 rounded w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">حدود المحافظات</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="checkbox" id="toggleGov"
+                                            class="form-checkbox text-blue-500 rounded w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">حدود
+                                            المحافظات</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="checkbox" id="toggleZone" class="form-checkbox text-blue-500 rounded w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">المناطق الحضرية</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="checkbox" id="toggleZone"
+                                            class="form-checkbox text-blue-500 rounded w-4 h-4" checked>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600 transition-colors">طبقة زونات الحصر الميداني</span>
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        <button id="btnDrawPoly" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnDrawPoly"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-draw-polygon ml-2 text-lg text-blue-500"></i>مضلع
                         </button>
-                        <button id="btnDrawRect" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnDrawRect"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-vector-square ml-2 text-lg text-blue-500"></i>مستطيل
                         </button>
-                        <button id="btnDrawCircle" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnDrawCircle"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-blue-600 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-regular fa-circle ml-2 text-lg text-blue-500"></i>دائرة
                         </button>
-                        <button id="btnCutMode" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-orange-500 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnCutMode"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-orange-500 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-scissors ml-2 text-lg text-orange-500"></i>قص
                         </button>
-                        <button id="btnDragMode" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-purple-500 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnDragMode"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-purple-500 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-arrows-up-down-left-right ml-2 text-lg text-purple-500"></i>سحب
                         </button>
-                        <button id="btnDeleteMode" class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-red-500 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
+                        <button id="btnDeleteMode"
+                            class="glass-panel px-4 py-2 md:px-5 md:py-2.5 rounded-2xl font-bold text-gray-700 hover:text-red-500 glass-panel-hover transition-all flex items-center shadow-md border-white/60 text-sm md:text-base">
                             <i class="fa-solid fa-eraser ml-2 text-lg text-red-500"></i>حذف
                         </button>
-                        
-                        <div id="mapEditHint" class="glass-panel px-5 py-2.5 w-full md:w-auto rounded-2xl text-gray-500 text-sm md:text-base flex items-center justify-center shadow-sm border-white/60 mt-1">
+
+                        <div id="mapEditHint"
+                            class="glass-panel px-5 py-2.5 w-full md:w-auto rounded-2xl text-gray-500 text-sm md:text-base flex items-center justify-center shadow-sm border-white/60 mt-1">
                             <i class="fa-solid fa-circle-info ml-2 text-blue-400"></i>
-                            اضغط على أي شيب (مساحة) في الخريطة لتعديله فراداً أو لإدارة بياناته الوصفية
+                            حدد منطقة على الخريطة للتعديل أو إدارة بياناتها المكانية
                         </div>
                     </div>
 
                     <!-- حاوية الخريطة الحقيقية -->
-                    <div id="gazaMapWrapper" class="relative w-full h-[650px] bg-white/50 rounded-2xl overflow-hidden border border-white/50 backdrop-blur-sm shadow-inner z-10">
+                    <div id="gazaMapWrapper"
+                        class="relative w-full h-[650px] bg-white/50 rounded-2xl overflow-hidden border border-white/50 backdrop-blur-sm shadow-inner z-10 animate-fade-in delay-300">
                         <!-- مساحة Leaflet -->
                         <div id="gazaMap" class="w-full h-full z-0"></div>
-                        
+
                         <!-- (أزرار التحكم بالطبقات السابقة تم نقلها إلى شريط الأدوات العلوي) -->
                     </div>
                 </div>
@@ -256,54 +392,59 @@
 
         <!-- ================= الصفحة الثانية: التحليلات البيانية والمراحل ================= -->
         <div id="process" class="page">
-            
+
             <!-- قسم الرسوم البيانية -->
             <section class="mb-20">
                 <div class="text-center mb-12">
-                    <div class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-md hover:scale-110 transition-transform">
+                    <div
+                        class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-md hover:scale-110 transition-transform">
                         <i class="fa-solid fa-chart-line text-3xl"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-800">التحليلات البيانية المتقدمة</h2>
-                    <p class="text-gray-500 mt-2 text-lg">نظرة شاملة لمناطق الحصر باستخدام لوحة تفاعلية حية</p>
+                    <h2 class="text-3xl font-bold text-gray-800">الإحصاء التحليلي</h2>
+                    <p class="text-gray-500 mt-2 text-lg">استيراد بيانات جيومكانية وتحليلها إحصائياً</p>
                 </div>
-                
-                <!-- بطاقات المجاميع (Stat Cards) -->
+
+
+                <!-- ===== بطاقات المجاميع (Stat Cards) ===== -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10 w-full" id="statCards">
-                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-1 transition-transform animate-fade-in delay-100">
-                        <div class="text-blue-500 text-3xl mb-3"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-2 transition-all duration-300 animate-fade-in delay-100 glass-panel-hover cursor-pointer group">
+                        <div class="text-blue-500 text-3xl mb-3 group-hover:scale-125 transition-transform duration-300"><i class="fa-solid fa-map-location-dot"></i></div>
                         <h4 class="text-3xl font-extrabold text-gray-800" id="statZones">--</h4>
-                        <p class="text-sm text-gray-500 font-semibold mt-1">إجمالي المناطق</p>
+                        <p class="text-sm text-gray-500 font-semibold mt-1">المناطق</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-1 transition-transform animate-fade-in delay-200">
-                        <div class="text-purple-500 text-3xl mb-3"><i class="fa-solid fa-building"></i></div>
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-2 transition-all duration-300 animate-fade-in delay-200 glass-panel-hover cursor-pointer group">
+                        <div class="text-purple-500 text-3xl mb-3 group-hover:scale-125 transition-transform duration-300"><i class="fa-solid fa-building"></i></div>
                         <h4 class="text-3xl font-extrabold text-gray-800" id="statTotalBldg">--</h4>
-                        <p class="text-sm text-gray-500 font-semibold mt-1">إجمالي المباني</p>
+                        <p class="text-sm text-gray-500 font-semibold mt-1">المباني</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-1 transition-transform animate-fade-in delay-300">
-                        <div class="text-emerald-500 text-3xl mb-3"><i class="fa-solid fa-house-circle-check"></i></div>
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-2 transition-all duration-300 animate-fade-in delay-300 glass-panel-hover cursor-pointer group">
+                        <div class="text-emerald-500 text-3xl mb-3 group-hover:scale-125 transition-transform duration-300"><i class="fa-solid fa-house-circle-check"></i></div>
                         <h4 class="text-3xl font-extrabold text-gray-800" id="statCompleted">--</h4>
-                        <p class="text-sm text-gray-500 font-semibold mt-1">المباني المنجزة</p>
+                        <p class="text-sm text-gray-500 font-semibold mt-1">الإنجاز</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-1 transition-transform animate-fade-in delay-400">
-                        <div class="text-orange-500 text-3xl mb-3"><i class="fa-solid fa-door-open"></i></div>
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-2 transition-all duration-300 animate-fade-in delay-400 glass-panel-hover cursor-pointer group">
+                        <div class="text-orange-500 text-3xl mb-3 group-hover:scale-125 transition-transform duration-300"><i class="fa-solid fa-door-open"></i></div>
                         <h4 class="text-3xl font-extrabold text-gray-800" id="statUnits">--</h4>
-                        <p class="text-sm text-gray-500 font-semibold mt-1">إجمالي الوحدات</p>
+                        <p class="text-sm text-gray-500 font-semibold mt-1">الوحدات</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-1 transition-transform animate-fade-in delay-500">
-                        <div class="text-indigo-500 text-3xl mb-3"><i class="fa-solid fa-people-group"></i></div>
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-2 transition-all duration-300 animate-fade-in delay-500 glass-panel-hover cursor-pointer group">
+                        <div class="text-indigo-500 text-3xl mb-3 group-hover:scale-125 transition-transform duration-300"><i class="fa-solid fa-people-group"></i></div>
                         <h4 class="text-3xl font-extrabold text-gray-800" id="statTeams">--</h4>
-                        <p class="text-sm text-gray-500 font-semibold mt-1">عدد الفرق الميدانية</p>
+                        <p class="text-sm text-gray-500 font-semibold mt-1">الفرق</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-1 transition-transform animate-fade-in delay-500">
-                        <div class="text-pink-500 text-3xl mb-3"><i class="fa-solid fa-user-gear"></i></div>
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-center shadow-lg border-white/60 hover:-translate-y-2 transition-all duration-300 animate-fade-in delay-700 glass-panel-hover cursor-pointer group">
+                        <div class="text-pink-500 text-3xl mb-3 group-hover:scale-125 transition-transform duration-300"><i class="fa-solid fa-user-gear"></i></div>
                         <h4 class="text-3xl font-extrabold text-gray-800" id="statEng">--</h4>
-                        <p class="text-sm text-gray-500 font-semibold mt-1">إجمالي المهندسين</p>
+                        <p class="text-sm text-gray-500 font-semibold mt-1">المهندسين</p>
                     </div>
                 </div>
 
                 <!-- شريط التقدم الفعلي لعملية الحصر -->
-                <div class="glass-panel p-8 rounded-3xl mb-12 shadow-xl border-white/70 bg-gradient-to-br from-white/40 to-blue-50/40 relative overflow-hidden group">
-                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl group-hover:bg-blue-400/20 transition-all duration-700"></div>
+                <div
+                    class="glass-panel p-8 rounded-3xl mb-12 shadow-xl border-white/70 bg-gradient-to-br from-white/40 to-blue-50/40 relative overflow-hidden group">
+                    <div
+                        class="absolute -right-20 -top-20 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl group-hover:bg-blue-400/20 transition-all duration-700">
+                    </div>
                     <div class="relative z-10">
                         <div class="flex justify-between items-end mb-4">
                             <div>
@@ -311,16 +452,22 @@
                                     <i class="fa-solid fa-bars-progress ml-3 text-blue-600 animate-pulse"></i>
                                     التقدم الفعلي لعملية الحصر (حسب المباني المنجزة)
                                 </h3>
-                                <p class="text-sm text-gray-500 mt-1">يتم احتساب النسبة بناءً على عدد المباني التي تم الانتهاء منها فعلياً مقارنة بالإجمالي</p>
+                                <p class="text-sm text-gray-500 mt-1">يتم احتساب النسبة بناءً على عدد المباني التي تم
+                                    الانتهاء منها فعلياً مقارنة بالإجمالي</p>
                             </div>
-                            <div class="text-4xl font-black text-blue-700 tracking-tighter" id="mainProgressText">0%</div>
-                        </div>
-                        <div class="w-full bg-gray-200/50 rounded-2xl h-6 p-1 shadow-inner border border-white/50 backdrop-blur-sm overflow-hidden">
-                            <div id="mainProgressBar" class="h-full bg-gradient-to-l from-blue-500 via-blue-400 to-emerald-400 rounded-xl transition-all duration-2000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.5)] relative group-hover:shadow-[0_0_20px_rgba(59,130,246,0.7)]" style="width: 0%">
-                                <div class="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:30px_30px] animate-[slide_2s_linear_infinite]"></div>
+                            <div class="text-4xl font-black text-blue-700 tracking-tighter" id="mainProgressText">0%
                             </div>
                         </div>
-                        <div class="flex justify-between mt-3 text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
+                        <div
+                            class="w-full bg-gray-200/50 rounded-2xl h-6 p-1 shadow-inner border border-white/50 backdrop-blur-sm overflow-hidden">
+                            <div id="mainProgressBar"
+                                class="h-full bg-gradient-to-l from-blue-500 via-blue-400 to-emerald-400 rounded-xl transition-all duration-2000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.5)] relative group-hover:shadow-[0_0_20px_rgba(59,130,246,0.7)]"
+                                style="width: 0%">
+                                <div class="progress-bar-stripes rounded-xl"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="flex justify-between mt-3 text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
                             <span>0% بدايات</span>
                             <span>50% منتصف العمل</span>
                             <span>100% اكتمال</span>
@@ -330,83 +477,63 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Chart 1: عمودي -->
-                    <div class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع إجمالي المباني حسب المحافظة</h3>
+                    <div
+                        class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع إجمالي
+                            المباني حسب المحافظة</h3>
                         <div class="relative h-64 w-full">
                             <canvas id="barChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 2: دائري -->
-                    <div class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع عدد الوحدات حسب المحافظة</h3>
+                    <div
+                        class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع عدد
+                            الوحدات حسب المحافظة</h3>
                         <div class="relative h-64 w-full flex justify-center">
                             <canvas id="doughnutChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 3: خطي مساحي -->
-                    <div class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 md:col-span-2 hover:-translate-y-1 transition-transform duration-300">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">مقارنة إجمالي المباني بالمباني المنجزة</h3>
+                    <div
+                        class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 md:col-span-2 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">مقارنة إجمالي
+                            المباني بالمباني المنجزة</h3>
                         <div class="relative h-80 w-full">
                             <canvas id="lineChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 4: شبكي رادار -->
-                    <div class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">نشاط الفرق الهندسية حسب المحافظة</h3>
+                    <div
+                        class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">نشاط الفرق
+                            الهندسية حسب المحافظة</h3>
                         <div class="relative h-64 w-full flex justify-center">
                             <canvas id="radarChart"></canvas>
                         </div>
                     </div>
-                    
+
                     <!-- Chart 5: قطبي -->
-                    <div class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع عدد المهندسين الميدانيين</h3>
+                    <div
+                        class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع عدد
+                            المهندسين الميدانيين</h3>
                         <div class="relative h-64 w-full flex justify-center">
                             <canvas id="polarChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 6: حالة الحصر -->
-                    <div class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع المناطق حسب حالة الحصر</h3>
+                    <div
+                        class="glass-panel p-6 rounded-3xl shadow-lg border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200/50 pb-2">توزيع المناطق
+                            حسب حالة الحصر</h3>
                         <div class="relative h-64 w-full flex justify-center">
                             <canvas id="statusChart"></canvas>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- مراحل التصميم -->
-            <section class="mb-16">
-                <h3 class="text-3xl font-bold mb-10 text-center text-gray-800">مراحل التصميم <i class="fa-solid fa-angles-left text-blue-400 ml-2 text-xl"></i></h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div class="glass-panel p-4 rounded-2xl text-center glass-panel-hover cursor-pointer group">
-                        <div class="text-4xl font-extrabold text-blue-200 mb-2 group-hover:scale-110 transition-transform">1</div>
-                        <h4 class="font-bold text-gray-700">البحث</h4>
-                        <p class="text-xs text-gray-500 mt-2">تحليل المنافسين وفهم السوق</p>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl text-center glass-panel-hover cursor-pointer group">
-                        <div class="text-4xl font-extrabold text-blue-300 mb-2 group-hover:scale-110 transition-transform">2</div>
-                        <h4 class="font-bold text-gray-700">التعاطف</h4>
-                        <p class="text-xs text-gray-500 mt-2">مقابلات وبناء شخصيات المستخدمين</p>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl text-center glass-panel-hover cursor-pointer group">
-                        <div class="text-4xl font-extrabold text-blue-400 mb-2 group-hover:scale-110 transition-transform">3</div>
-                        <h4 class="font-bold text-gray-700">التخطيط</h4>
-                        <p class="text-xs text-gray-500 mt-2">هيكلة المعلومات و Wireframes</p>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl text-center glass-panel-hover cursor-pointer group">
-                        <div class="text-4xl font-extrabold text-blue-500 mb-2 group-hover:scale-110 transition-transform">4</div>
-                        <h4 class="font-bold text-gray-700">التصميم UI</h4>
-                        <p class="text-xs text-gray-500 mt-2">تطبيق النظام البصري والألوان</p>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl text-center glass-panel-hover cursor-pointer group">
-                        <div class="text-4xl font-extrabold text-blue-600 mb-2 group-hover:scale-110 transition-transform">5</div>
-                        <h4 class="font-bold text-gray-700">الاختبار</h4>
-                        <p class="text-xs text-gray-500 mt-2">نماذج تفاعلية واختبار سهولة الاستخدام</p>
                     </div>
                 </div>
             </section>
@@ -415,82 +542,117 @@
         <!-- ================= الصفحة الثالثة: المسار ================= -->
         <div id="flow" class="page">
             <section class="mb-10 py-12">
-                 <div class="text-center mb-8">
-                    <div class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-purple-500 shadow-md transition-transform duration-700">
+                <div class="text-center mb-8">
+                    <div
+                        class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-purple-500 shadow-md transition-transform duration-700">
                         <i class="fa-solid fa-chalkboard-user text-3xl"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-800">العرض والشرح</h2>
-                    <p class="text-gray-500 mt-3 text-lg">عرض تفاعلي مباشر للمناطق وبياناتها بمجرد التمرير أو التثبيت عبر الضغط</p>
-                 </div>
+                    <h2 class="text-3xl font-bold text-gray-800">عرض البيانات</h2>
+                    <p class="text-gray-500 mt-3 text-lg">مشاهدة وشرح الإنجازات والمناطق تفاعلياً</p>
+                </div>
 
-                 <!-- Container for View Map -->
-                 <!-- Container for View Map (Full Width) -->
-                 <div class="glass-panel p-4 md:p-6 rounded-3xl shadow-lg border-white/60 relative z-20 flex flex-col h-[700px] w-full transition-all duration-300" id="viewMapWrapper">
-                    
+                <!-- Container for View Map -->
+                <!-- Container for View Map (Full Width) -->
+                <div class="glass-panel p-4 md:p-6 rounded-3xl shadow-lg border-white/60 relative z-20 flex flex-col h-[700px] w-full transition-all duration-300 animate-fade-in delay-200"
+                    id="viewMapWrapper">
+
                     <!-- Toolbar Container -->
-                    <div class="flex flex-wrap gap-2 mb-4 relative z-[600] justify-center md:justify-start items-center">
-                        
+                    <div
+                        class="flex flex-wrap gap-2 mb-4 relative z-[600] justify-center md:justify-start items-center animate-fade-in delay-300">
+
                         <!-- Toggle Legend Button -->
-                        <button id="btnToggleLegend" class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-blue-600 transition-all flex items-center shadow-md border-white/60 text-sm">
+                        <button id="btnToggleLegend"
+                            class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-blue-600 transition-all flex items-center shadow-md border-white/60 text-sm">
                             <i class="fa-solid fa-list-ul ml-2 text-blue-500"></i>المفتاح
                         </button>
-                        
+
                         <!-- Map Stats Button -->
-                        <button id="btnOpenMapStats" class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-indigo-600 transition-all flex items-center shadow-md border-white/60 text-sm">
+                        <button id="btnOpenMapStats"
+                            class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-indigo-600 transition-all flex items-center shadow-md border-white/60 text-sm">
                             <i class="fa-solid fa-chart-pie ml-2 text-indigo-500"></i>الإحصائيات
                         </button>
-                        
+
                         <!-- Add Custom Map Button -->
-                        <button id="btnAddCustomMap" class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-green-600 transition-all flex items-center shadow-md border-white/60 text-sm">
+                        <button id="btnAddCustomMap"
+                            class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-green-600 transition-all flex items-center shadow-md border-white/60 text-sm">
                             <i class="fa-solid fa-file-import ml-2 text-green-500"></i>إضافة خريطة
                         </button>
-                        
+
                         <!-- Data Control (Fields Filter) Dropdown -->
                         <div class="relative group">
-                            <button class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-purple-600 transition-all flex items-center shadow-md border-white/60 text-sm">
+                            <button
+                                class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-purple-600 transition-all flex items-center shadow-md border-white/60 text-sm">
                                 <i class="fa-solid fa-filter ml-2 text-purple-500"></i>البيانات
                                 <i class="fa-solid fa-chevron-down mr-2 text-xs opacity-70"></i>
                             </button>
-                            <div class="absolute right-0 top-full mt-2 w-64 glass-panel rounded-xl shadow-xl border-white/70 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 flex flex-col p-4 z-[999] text-right">
-                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-2 mb-2">الحقول النشطة للزونات</h3>
-                                <div id="popupFieldsFilter" class="flex flex-col gap-1 overflow-y-auto max-h-48 w-full no-scrollbar pr-1">
-                                    <div class="text-center text-xs text-gray-400 mt-2"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحميل...</div>
+                            <div
+                                class="absolute right-0 top-full mt-2 w-64 glass-panel rounded-xl shadow-xl border-white/70 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 flex flex-col p-4 z-[999] text-right">
+                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-2 mb-2">الحقول
+                                    النشطة للزونات</h3>
+                                <div id="popupFieldsFilter"
+                                    class="flex flex-col gap-1 overflow-y-auto max-h-48 w-full no-scrollbar pr-1">
+                                    <div class="text-center text-xs text-gray-400 mt-2"><i
+                                            class="fa-solid fa-circle-notch fa-spin"></i> جاري التحميل...</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Existing Layers Dropdown -->
                         <div class="relative group mr-auto">
-                            <button class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-blue-600 transition-all flex items-center shadow-md border-white/60 text-sm">
+                            <button
+                                class="glass-panel px-4 py-2 rounded-xl font-bold text-gray-700 hover:text-blue-600 transition-all flex items-center shadow-md border-white/60 text-sm">
                                 <i class="fa-solid fa-layer-group ml-2 text-blue-500"></i>الطبقات
                                 <i class="fa-solid fa-chevron-down mr-2 text-xs opacity-70"></i>
                             </button>
-                            <div class="absolute left-0 top-full mt-2 w-56 glass-panel rounded-xl shadow-xl border-white/70 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100 flex flex-col gap-2 p-4 z-[999] text-right">
-                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1">خرائط الأساس</h3>
+                            <div
+                                class="absolute left-0 top-full mt-2 w-56 glass-panel rounded-xl shadow-xl border-white/70 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100 flex flex-col gap-2 p-4 z-[999] text-right">
+                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1">خرائط
+                                    الأساس</h3>
                                 <div class="flex flex-col gap-2 mb-2">
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="viewBasemap" value="light" class="form-radio text-blue-500 w-4 h-4" checked>
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">الضوء (Carto Light)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="viewBasemap" value="light"
+                                            class="form-radio text-blue-500 w-4 h-4" checked>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">الضوء
+                                            (Carto Light)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="viewBasemap" value="dark" class="form-radio text-blue-500 w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">الظلام (Carto Dark)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="viewBasemap" value="dark"
+                                            class="form-radio text-blue-500 w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">الظلام
+                                            (Carto Dark)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="radio" name="viewBasemap" value="satellite" class="form-radio text-blue-500 w-4 h-4">
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">صور الأقمار (Esri Satellite)</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="radio" name="viewBasemap" value="satellite"
+                                            class="form-radio text-blue-500 w-4 h-4">
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">صور
+                                            الأقمار (Esri Satellite)</span>
                                     </label>
                                 </div>
-                                
-                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1 mt-1">الطبقات المرئية</h3>
+
+                                <h3 class="text-sm font-bold text-gray-800 border-b border-gray-200 pb-1 mb-1 mt-1">
+                                    الطبقات المرئية</h3>
                                 <div class="flex flex-col gap-2">
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="checkbox" id="toggleViewGov" class="form-checkbox text-blue-500 rounded w-4 h-4" checked>
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">حدود المحافظات</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="checkbox" id="toggleViewGov"
+                                            class="form-checkbox text-blue-500 rounded w-4 h-4" checked>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">حدود
+                                            المحافظات</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
-                                        <input type="checkbox" id="toggleViewZone" class="form-checkbox text-blue-500 rounded w-4 h-4" checked>
-                                        <span class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">زونات الحصر</span>
+                                    <label
+                                        class="flex items-center space-x-2 space-x-reverse cursor-pointer group/label">
+                                        <input type="checkbox" id="toggleViewZone"
+                                            class="form-checkbox text-blue-500 rounded w-4 h-4" checked>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 group-hover/label:text-blue-600">زونات
+                                            الحصر</span>
                                     </label>
                                 </div>
                             </div>
@@ -498,202 +660,288 @@
                     </div>
 
                     <!-- Add Upload Modal Mockup (Hidden by default) -->
-                    <div id="addMapModal" class="absolute top-16 right-6 lg:right-auto lg:left-6 z-[800] w-72 glass-panel p-5 rounded-2xl shadow-2xl border-white/80 opacity-0 invisible transition-all duration-300 transform -translate-y-4">
-                        <h4 class="font-bold text-sm text-gray-800 border-b border-gray-200 pb-2 mb-3"><i class="fa-solid fa-cloud-arrow-up ml-2 text-green-500"></i>إضافة خريطة GeoJSON</h4>
+                    <div id="addMapModal"
+                        class="absolute top-16 right-6 lg:right-auto lg:left-6 z-[800] w-72 glass-panel p-5 rounded-2xl shadow-2xl border-white/80 opacity-0 invisible transition-all duration-300 transform -translate-y-4">
+                        <h4 class="font-bold text-sm text-gray-800 border-b border-gray-200 pb-2 mb-3"><i
+                                class="fa-solid fa-cloud-arrow-up ml-2 text-green-500"></i>إضافة خريطة GeoJSON</h4>
                         <p class="text-xs text-gray-500 mb-4">قم برفع ملف خريطة لحفظها وإضافتها لطبقات النظام.</p>
-                        
-                        <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-white/40 hover:bg-white/60 transition-colors">
+
+                        <label
+                            class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-white/40 hover:bg-white/60 transition-colors">
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                 <i class="fa-solid fa-upload text-xl text-gray-400 mb-2"></i>
                                 <p class="text-xs font-semibold text-gray-500">اضغط لرفع ملف</p>
                             </div>
                             <input type="file" class="hidden" accept=".geojson,.json" />
                         </label>
-                        
-                        <button class="w-full mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-2 rounded-xl shadow hover:from-green-600 hover:to-emerald-700 transition-colors text-sm">
+
+                        <button
+                            class="w-full mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-2 rounded-xl shadow hover:from-green-600 hover:to-emerald-700 transition-colors text-sm">
                             حفـــظ
                         </button>
                     </div>
 
                     <!-- Map Container -->
-                    <div class="relative flex-grow w-full bg-white/50 rounded-2xl overflow-hidden border border-white/50 backdrop-blur-sm shadow-inner z-10 group/viewmap">
+                    <div
+                        class="relative flex-grow w-full bg-white/50 rounded-2xl overflow-hidden border border-white/50 backdrop-blur-sm shadow-inner z-10 group/viewmap">
                         <div id="viewMap" class="w-full h-full z-0"></div>
-                        
+
                         <!-- Embedded Fullscreen Button -->
-                        <button id="btnMapFullscreen" class="absolute top-4 right-4 z-[400] w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-gray-700 hover:text-blue-600 shadow-md border-white/70 transition-transform transform hover:scale-110 active:scale-95">
+                        <button id="btnMapFullscreen"
+                            class="absolute top-4 right-4 z-[400] w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-gray-700 hover:text-blue-600 shadow-md border-white/70 transition-transform transform hover:scale-110 active:scale-95">
                             <i class="fa-solid fa-expand text-lg" id="iconFullscreen"></i>
                         </button>
-                        
+
                         <!-- Legend Container -->
-                        <div id="viewLegend" class="absolute bottom-10 left-6 z-[600] glass-panel p-4 rounded-xl shadow-lg border-white/70 text-right opacity-100 transition-opacity duration-300 w-48">
+                        <div id="viewLegend"
+                            class="absolute bottom-10 left-6 z-[600] glass-panel p-4 rounded-xl shadow-lg border-white/70 text-right opacity-100 transition-opacity duration-300 w-48">
                             <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
                                 <h4 class="font-bold text-sm text-gray-800">حالات الحصر</h4>
                             </div>
 
-                            <div class="flex flex-col gap-2 text-xs transition-opacity duration-300" id="legendColorsBox">
-                                <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-[#22c55e] border-2 border-white shadow-sm"></span><span class="font-semibold text-gray-700">مكتمل</span></div>
-                                <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-[#fb923c] border-2 border-white shadow-sm"></span><span class="font-semibold text-gray-700">قيد العمل</span></div>
-                                <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-[#ef4444] border-2 border-white shadow-sm"></span><span class="font-semibold text-gray-700">لم يبدأ</span></div>
+                            <div class="flex flex-col gap-2 text-xs transition-opacity duration-300"
+                                id="legendColorsBox">
+                                <div class="flex items-center gap-2"><span
+                                        class="w-4 h-4 rounded-full bg-[#22c55e] border-2 border-white shadow-sm"></span><span
+                                        class="font-semibold text-gray-700">مكتمل</span></div>
+                                <div class="flex items-center gap-2"><span
+                                        class="w-4 h-4 rounded-full bg-[#fb923c] border-2 border-white shadow-sm"></span><span
+                                        class="font-semibold text-gray-700">قيد العمل</span></div>
+                                <div class="flex items-center gap-2"><span
+                                        class="w-4 h-4 rounded-full bg-[#ef4444] border-2 border-white shadow-sm"></span><span
+                                        class="font-semibold text-gray-700">لم يبدأ</span></div>
                             </div>
                         </div>
-                        
+
                         <!-- Drag Handle for Resizing bounds the bottom of the map relative to its container -->
-                        <div id="mapResizerHandle" class="absolute bottom-0 w-full h-4 glass-panel hover:bg-white/70 backdrop-blur-md cursor-row-resize flex items-center justify-center border-t border-white/50 transition-colors z-[600]" title="اسحب لتغيير حجم الخريطة">
+                        <div id="mapResizerHandle"
+                            class="absolute bottom-0 w-full h-4 glass-panel hover:bg-white/70 backdrop-blur-md cursor-row-resize flex items-center justify-center border-t border-white/50 transition-colors z-[600]"
+                            title="اسحب لتغيير حجم الخريطة">
                             <div class="w-12 h-1 bg-gray-500/50 rounded-full"></div>
                         </div>
                     </div>
-                 </div>
+                </div>
             </section>
         </div>
 
         <!-- ================= الصفحة الرابعة: الإخراج الفني (Layout) ================= -->
         <div id="style" class="page">
-            <section class="mb-6 py-4 text-center">
-                <div class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-md">
+            <section class="mb-6 py-4 text-center animate-fade-in delay-100">
+                <div
+                    class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-md">
                     <i class="fa-solid fa-print text-3xl"></i>
                 </div>
-                <h2 class="text-3xl font-bold text-gray-800">الطباعة والإخراج الفني (Map Layout)</h2>
+                <h2 class="text-3xl font-bold text-gray-800">التحليل الذكي</h2>
                 <p class="text-gray-500 mt-2 text-lg">تجهيز الخريطة للطباعة بأسلوب عصري مع جميع ملحقات الإخراج الفني</p>
             </section>
 
             <div class="flex flex-col lg:flex-row gap-6 h-[800px] mb-10">
-                
+
                 <!-- شريط الأدوات (Tools Sidebar) -->
-                <div class="w-full lg:w-72 glass-panel rounded-3xl p-5 flex flex-col gap-4 overflow-y-auto no-scrollbar shadow-lg border-white/60 z-10 shrink-0">
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2"><i class="fa-solid fa-toolbox ml-2 text-blue-500"></i>إضافة بيانات الخريطة</h3>
-                    
-                    <label class="bg-indigo-50 hover:bg-indigo-100 transition p-3 rounded-xl border border-indigo-200 shadow-sm text-right flex items-center group cursor-pointer mb-2">
-                        <i class="fa-solid fa-file-arrow-up text-3xl ml-4 text-indigo-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">رفع GeoJSON</strong><span class="text-xs text-gray-500">تحميل ملفات خريطة (.geojson)</span></div>
+                <div
+                    class="w-full lg:w-72 glass-panel rounded-3xl p-5 flex flex-col gap-4 overflow-y-auto no-scrollbar shadow-lg border-white/60 z-10 shrink-0 animate-fade-in delay-200">
+                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2"><i
+                            class="fa-solid fa-toolbox ml-2 text-blue-500"></i>إضافة بيانات الخريطة</h3>
+
+                    <label
+                        class="bg-indigo-50 hover:bg-indigo-100 transition p-3 rounded-xl border border-indigo-200 shadow-sm text-right flex items-center group cursor-pointer mb-2">
+                        <i
+                            class="fa-solid fa-file-arrow-up text-3xl ml-4 text-indigo-500 group-hover:scale-110 transition-transform"></i>
+                        <div><strong class="block text-sm text-gray-800">رفع GeoJSON</strong><span
+                                class="text-xs text-gray-500">تحميل ملفات خريطة (.geojson)</span></div>
                         <input type="file" id="layoutGeoJsonInput" class="hidden" accept=".geojson,.json">
                     </label>
 
-                    <button id="layoutUrlBtn" class="bg-blue-50 hover:bg-blue-100 transition p-3 rounded-xl border border-blue-200 shadow-sm text-right flex items-center group w-full mb-4">
-                        <i class="fa-solid fa-link text-3xl ml-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                        <div><strong class="block text-sm text-gray-800">إضافة رابط (XYZ)</strong><span class="text-xs text-gray-500">جلب طبقات من خوادم خارجية</span></div>
+                    <button id="layoutUrlBtn"
+                        class="bg-blue-50 hover:bg-blue-100 transition p-3 rounded-xl border border-blue-200 shadow-sm text-right flex items-center group w-full mb-4">
+                        <i
+                            class="fa-solid fa-link text-3xl ml-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                        <div><strong class="block text-sm text-gray-800">إضافة رابط (XYZ)</strong><span
+                                class="text-xs text-gray-500">جلب طبقات من خوادم خارجية</span></div>
                     </button>
 
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2"><i class="fa-solid fa-shapes ml-2 text-purple-500"></i>عناصر الإخراج الفني</h3>
-                    
-                    <button id="btnAddLayoutNorthArrow" class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
-                        <i class="fa-regular fa-compass text-2xl ml-3 text-orange-500 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2"><i
+                            class="fa-solid fa-shapes ml-2 text-purple-500"></i>عناصر الإخراج الفني</h3>
+
+                    <button id="btnAddLayoutNorthArrow"
+                        class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
+                        <i
+                            class="fa-regular fa-compass text-2xl ml-3 text-orange-500 group-hover:scale-110 transition-transform"></i>
                         <div><strong class="block text-sm text-gray-800">سهم الشمال</strong></div>
                     </button>
-                    
-                    <button id="btnAddLayoutScaleBar" class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
-                        <i class="fa-solid fa-ruler text-2xl ml-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
+
+                    <button id="btnAddLayoutScaleBar"
+                        class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
+                        <i
+                            class="fa-solid fa-ruler text-2xl ml-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
                         <div><strong class="block text-sm text-gray-800">مقياس الرسم</strong></div>
                     </button>
 
-                    <button id="btnAddLayoutLegend" class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
-                        <i class="fa-solid fa-list-ul text-2xl ml-3 text-purple-500 group-hover:scale-110 transition-transform"></i>
+                    <button id="btnAddLayoutLegend"
+                        class="bg-white/50 hover:bg-white/80 transition p-2.5 rounded-xl border border-gray-200 shadow-sm text-right flex items-center group mb-2">
+                        <i
+                            class="fa-solid fa-list-ul text-2xl ml-3 text-purple-500 group-hover:scale-110 transition-transform"></i>
                         <div><strong class="block text-sm text-gray-800">مفتاح الخريطة</strong></div>
                     </button>
 
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2 mt-4"><i class="fa-solid fa-print ml-2 text-gray-500"></i>إعدادات الورقة</h3>
-                    <select class="w-full bg-white/80 border border-gray-300 rounded-lg p-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 ring-blue-500/50 shadow-sm">
+                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-2 mt-4"><i
+                            class="fa-solid fa-print ml-2 text-gray-500"></i>إعدادات الورقة</h3>
+                    <select
+                        class="w-full bg-white/80 border border-gray-300 rounded-lg p-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 ring-blue-500/50 shadow-sm">
                         <option>حجم الورقة: A4 (297 × 210 مم)</option>
                         <option>حجم الورقة: A3 (420 × 297 مم)</option>
                     </select>
 
-                    <button id="btnExportPDF" class="mt-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-transform flex items-center justify-center">
+                    <button id="btnExportPDF"
+                        class="mt-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-transform flex items-center justify-center">
                         <i class="fa-solid fa-file-pdf ml-2 text-lg"></i>تصدير PDF
                     </button>
                 </div>
 
                 <!-- مساحة العمل للورقة (Layout Canvas) -->
-                <div id="layoutWorkspace" class="flex-grow glass-panel rounded-3xl p-4 md:p-8 shadow-inner border-white/60 flex items-center justify-center bg-gray-200/40 relative overflow-hidden" style="background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 20px 20px;">
-                    
+                <div id="layoutWorkspace"
+                    class="flex-grow glass-panel rounded-3xl p-4 md:p-8 shadow-inner border-white/60 flex items-center justify-center bg-gray-200/40 relative overflow-hidden animate-fade-in delay-300"
+                    style="background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 20px 20px;">
+
                     <!-- أدوات التكبير المحيطة -->
                     <div class="absolute right-4 top-4 flex flex-col gap-2 z-20">
-                        <button id="layoutZoomInBtn" class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition" title="تكبير"><i class="fa-solid fa-plus"></i></button>
-                        <button id="layoutZoomOutBtn" class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition" title="تصغير"><i class="fa-solid fa-minus"></i></button>
-                        <button id="layoutFullscreenBtn" class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition mt-2" title="ملء الشاشة"><i class="fa-solid fa-expand"></i></button>
+                        <button id="layoutZoomInBtn"
+                            class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition"
+                            title="تكبير"><i class="fa-solid fa-plus"></i></button>
+                        <button id="layoutZoomOutBtn"
+                            class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition"
+                            title="تصغير"><i class="fa-solid fa-minus"></i></button>
+                        <button id="layoutFullscreenBtn"
+                            class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition mt-2"
+                            title="ملء الشاشة"><i class="fa-solid fa-expand"></i></button>
                     </div>
 
                     <!-- ورقة الطباعة التفاعلية (A4 Landscape aspect ratio Demo) -->
-                    <div id="layoutPaper" class="relative bg-white shadow-2xl transition-all duration-300 transform w-full max-w-[850px] aspect-[1.414/1] p-5 lg:p-6 border border-gray-300 group/canvas">
-                        
+                    <div id="layoutPaper"
+                        class="relative bg-white shadow-2xl transition-all duration-300 transform w-full max-w-[850px] aspect-[1.414/1] p-5 lg:p-6 border border-gray-300 group/canvas">
+
                         <!-- إطار الورقة الداخلي (Neatline) -->
                         <div class="border-[3px] border-gray-800 w-full h-full relative p-3 flex flex-col">
-                            
+
                             <!-- الرأس (Title) -->
-                            <div class="w-full text-center border-b-2 border-gray-800 pb-3 mb-3 cursor-pointer hover:bg-blue-50/50 transition border-dashed group/title relative">
-                                <h1 class="text-3xl font-extrabold text-gray-900 font-serif tracking-wide drop-shadow-sm">خريطة التقسيم الإداري التفصيلية</h1>
-                                <p class="text-base text-gray-700 font-semibold mt-1">المرحلة الأولى - دراسة حالة 2026</p>
-                                <span class="absolute top-1 right-2 p-2 bg-blue-100 text-blue-600 rounded-full text-xs opacity-0 group-hover/title:opacity-100 transition shadow"><i class="fa-solid fa-pen"></i></span>
+                            <div
+                                class="w-full text-center border-b-2 border-gray-800 pb-3 mb-3 cursor-pointer hover:bg-blue-50/50 transition border-dashed group/title relative">
+                                <h1
+                                    class="text-3xl font-extrabold text-gray-900 font-serif tracking-wide drop-shadow-sm outline-none focus:bg-white rounded px-2" contenteditable="true" spellcheck="false" title="انقر لتعديل عنوان الخريطة">
+                                    خريطة التقسيم الإداري التفصيلية</h1>
+                                <p class="text-base text-gray-700 font-semibold mt-1 outline-none focus:bg-white rounded px-2 inline-block" contenteditable="true" spellcheck="false" title="انقر للتعديل">المرحلة الأولى - دراسة حالة 2026
+                                </p>
+                                <span
+                                    class="absolute top-1 right-2 p-2 bg-blue-100 text-blue-600 rounded-full text-xs opacity-0 group-hover/title:opacity-100 transition shadow"><i
+                                        class="fa-solid fa-pen"></i></span>
                             </div>
-                            
+
                             <!-- الخريطة الرئيسية (Main Data Frame) -->
-                            <div class="flex-grow relative border-2 border-gray-500 bg-white overflow-hidden cursor-crosshair transition hover:border-blue-500 hover:shadow-inner group/mapframe" id="layoutMapFrame">
-                                
+                            <div class="flex-grow relative border-2 border-gray-500 bg-white overflow-hidden cursor-crosshair transition hover:border-blue-500 hover:shadow-inner group/mapframe"
+                                id="layoutMapFrame">
+
                                 <div id="layoutMapInstance" class="w-full h-full z-0 pointer-events-none"></div>
-                                
-                                <div id="layoutMapOverlay" class="absolute inset-0 border-4 border-blue-500/0 group-hover/mapframe:border-blue-400 border-dashed transition-all z-10 flex items-center justify-center cursor-pointer bg-black/5 hover:bg-transparent">
-                                    <div class="bg-blue-600/90 backdrop-blur font-bold text-white px-4 py-2 rounded-xl shadow-lg opacity-0 group-hover/mapframe:opacity-100 transition duration-300 shadow-blue-500/20" id="layoutMapActivateText">
-                                        انقر لتفعيل الخريطة للسحب والتكبير (Pan/Zoom) <i class="fa-solid fa-hand-pointer ml-2"></i>
+
+                                <div id="layoutMapOverlay"
+                                    class="absolute inset-0 border-4 border-blue-500/0 group-hover/mapframe:border-blue-400 border-dashed transition-all z-10 flex items-center justify-center cursor-pointer bg-black/5 hover:bg-transparent">
+                                    <div class="bg-blue-600/90 backdrop-blur font-bold text-white px-4 py-2 rounded-xl shadow-lg opacity-0 group-hover/mapframe:opacity-100 transition duration-300 shadow-blue-500/20"
+                                        id="layoutMapActivateText">
+                                        انقر لتفعيل الخريطة للسحب والتكبير (Pan/Zoom) <i
+                                            class="fa-solid fa-hand-pointer ml-2"></i>
                                     </div>
                                 </div>
 
                                 <!-- سهم الشمال المتطور (North Arrow Box) -->
-                                <div id="layoutNorthArrow" class="layout-draggable absolute top-5 right-5 w-16 h-20 cursor-move bg-white/90 backdrop-blur rounded-lg p-2 shadow-md hover:outline hover:outline-2 outline-offset-2 hover:outline-orange-500 z-20 transition border border-gray-200">
+                                <div id="layoutNorthArrow"
+                                    class="layout-draggable absolute top-5 right-5 w-16 h-20 cursor-move bg-white/90 backdrop-blur rounded-lg p-2 shadow-md hover:outline hover:outline-2 outline-offset-2 hover:outline-orange-500 z-20 transition border border-gray-200">
                                     <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md" id="northArrowSvg">
                                         <g id="northArrowShape1">
                                             <polygon points="50,5 65,45 50,85 35,45" fill="var(--na-color, #1f2937)" />
                                             <polygon points="50,5 50,85 35,45" fill="var(--na-color-light, #9ca3af)" />
                                         </g>
-                                        <text x="50" y="98" font-family="'Cairo', sans-serif" font-size="20" font-weight="900" text-anchor="middle" fill="var(--na-color, #1f2937)">N</text>
+                                        <text x="50" y="98" font-family="'Cairo', sans-serif" font-size="20"
+                                            font-weight="900" text-anchor="middle"
+                                            fill="var(--na-color, #1f2937)">N</text>
                                     </svg>
                                 </div>
 
                                 <!-- مقياس الرسم المتطور (Scale Bar Box) -->
-                                <div id="layoutScaleBar" class="layout-draggable absolute bottom-5 left-5 cursor-move bg-white/90 backdrop-blur rounded-lg p-3 shadow-md border border-gray-200 hover:outline hover:outline-2 outline-offset-2 hover:outline-blue-500 z-20 transition">
-                                    <div class="flex items-center gap-2 text-xs font-bold text-gray-800 mb-1 ml-1 font-serif">Scale <span id="scaleTextValue">1:10,000</span></div>
-                                    <div class="w-48 h-3 flex relative border border-gray-800 shadow-sm" id="scaleBarVisual">
+                                <div id="layoutScaleBar"
+                                    class="layout-draggable absolute bottom-5 left-5 cursor-move bg-white/90 backdrop-blur rounded-lg p-3 shadow-md border border-gray-200 hover:outline hover:outline-2 outline-offset-2 hover:outline-blue-500 z-20 transition">
+                                    <div
+                                        class="flex items-center gap-2 text-xs font-bold text-gray-800 mb-1 ml-1 font-serif">
+                                        Scale <span id="scaleTextValue">1:10,000</span></div>
+                                    <div class="w-48 h-3 flex relative border border-gray-800 shadow-sm"
+                                        id="scaleBarVisual">
                                         <div class="w-1/4 h-full bg-gray-800 border-r border-white"></div>
                                         <div class="w-1/4 h-full bg-white border-r border-gray-800"></div>
                                         <div class="w-1/4 h-full bg-gray-800 border-r border-white"></div>
                                         <div class="w-1/4 h-full bg-white"></div>
                                     </div>
-                                    <div class="flex justify-between text-[11px] font-bold text-gray-800 w-48 mt-1 font-sans px-1" id="scaleBarLabels">
+                                    <div class="flex justify-between text-[11px] font-bold text-gray-800 w-48 mt-1 font-sans px-1"
+                                        id="scaleBarLabels">
                                         <span>0</span>
                                         <span>2.5</span>
                                         <span>5 km</span>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- الشريط السفلي والجانبي (Legend, Overview & Credits) -->
                             <div class="flex gap-3 mt-3 h-[140px]">
-                                
+
                                 <!-- مفتاح الخريطة (Legend) -->
-                                <div id="layoutLegend" class="layout-draggable w-5/12 border-2 border-gray-400 p-3 text-right bg-white cursor-move hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-purple-500 transition relative group/legend flex flex-col justify-center overflow-hidden">
-                                    <h4 class="font-bold border-b-2 border-gray-800 pb-1 mb-2 text-sm flex items-center"><i class="fa-solid fa-list-ul ml-2 text-gray-500"></i>مفتاح الخريطة (Legend)</h4>
+                                <div id="layoutLegend"
+                                    class="layout-draggable w-5/12 border-2 border-gray-400 p-3 text-right bg-white cursor-move hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-purple-500 transition relative group/legend flex flex-col justify-center overflow-hidden">
+                                    <h4
+                                        class="font-bold border-b-2 border-gray-800 pb-1 mb-2 text-sm flex items-center">
+                                        <i class="fa-solid fa-list-ul ml-2 text-gray-500"></i>مفتاح الخريطة (Legend)
+                                    </h4>
                                     <div class="grid grid-cols-2 gap-x-2 gap-y-1" id="layoutLegendContent">
-                                        <div class="text-xs text-gray-500 w-full col-span-2 text-center py-2">سيتم إضافة طبقات الخريطة هنا بمجرد اختيارها.</div>
+                                        <div class="text-xs text-gray-500 w-full col-span-2 text-center py-2">سيتم إضافة
+                                            طبقات الخريطة هنا بمجرد اختيارها.</div>
                                     </div>
                                 </div>
 
                                 <!-- الخريطة المصغرة (Overview Map) -->
-                                <div id="layoutOverviewWrapper" class="w-4/12 border-2 border-gray-400 relative cursor-pointer group/overview bg-blue-50 flex items-center justify-center overflow-hidden hover:outline hover:outline-2 outline-offset-1 hover:outline-green-500 transition border-double">
+                                <div id="layoutOverviewWrapper"
+                                    class="w-4/12 border-2 border-gray-400 relative cursor-pointer group/overview bg-blue-50 flex items-center justify-center overflow-hidden hover:outline hover:outline-2 outline-offset-1 hover:outline-green-500 transition border-double">
                                     <div id="layoutOverviewMap" class="absolute inset-0 z-0"></div>
-                                    <div class="absolute top-0 left-0 w-full bg-white/90 text-center text-xs font-bold text-gray-800 py-1 border-b border-gray-300 backdrop-blur-sm z-20">خريطة الموقع العام</div>
-                                    <button id="layoutOverviewResetBtn" class="absolute bottom-2 left-2 p-2 bg-green-100 text-green-600 rounded-full text-xs opacity-0 group-hover/overview:opacity-100 transition shadow z-20" title="إعادة ضبط المشهد"><i class="fa-solid fa-location-crosshairs"></i></button>
+                                    <div
+                                        class="absolute top-0 left-0 w-full bg-white/90 text-center text-xs font-bold text-gray-800 py-1 border-b border-gray-300 backdrop-blur-sm z-20">
+                                        خريطة الموقع العام</div>
+                                    <button id="layoutOverviewResetBtn"
+                                        class="absolute bottom-2 left-2 p-2 bg-green-100 text-green-600 rounded-full text-xs opacity-0 group-hover/overview:opacity-100 transition shadow z-20"
+                                        title="إعادة ضبط المشهد"><i
+                                            class="fa-solid fa-location-crosshairs"></i></button>
                                 </div>
-                                
+
                                 <!-- الاعتمادات والشعارات (Credits) -->
-                                <div class="w-3/12 border-2 border-gray-400 p-2 text-center flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-gray-600 transition relative group/credits">
+                                <div
+                                    class="w-3/12 border-2 border-gray-400 p-2 text-center flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 hover:outline hover:outline-2 outline-offset-1 hover:outline-gray-600 transition relative group/credits">
                                     <div class="flex gap-2 mb-2">
-                                        <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-[8px] text-gray-500 shadow-inner border border-gray-300 font-bold"><i class="fa-solid fa-building mr-1"></i>Ministry</div>
-                                        <div class="w-10 h-10 bg-gray-200 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400"><i class="fa-solid fa-image"></i></div>
+                                        <div
+                                            class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-[8px] text-gray-500 shadow-inner border border-gray-300 font-bold">
+                                            <i class="fa-solid fa-building mr-1"></i>Ministry
+                                        </div>
+                                        <div
+                                            class="w-10 h-10 bg-gray-200 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400">
+                                            <i class="fa-solid fa-image"></i>
+                                        </div>
                                     </div>
                                     <div class="text-[10px] space-y-1 text-gray-600 w-full">
-                                        <p class="font-bold text-gray-800 border-b border-gray-200 pb-1">نظام GIS المركزي</p>
-                                        <div class="flex justify-between px-1"><span>التاريخ:</span><span class="font-semibold">01/04/2026</span></div>
-                                        <div class="flex justify-between px-1"><span>الإسقاط:</span><span class="font-semibold">WGS 1984 36N</span></div>
-                                        <div class="flex justify-between px-1"><span>رقم اللوحة:</span><span class="font-bold font-serif text-xs text-blue-700">A-142</span></div>
+                                        <p class="font-bold text-gray-800 border-b border-gray-200 pb-1">نظام GIS
+                                            المركزي</p>
+                                        <div class="flex justify-between px-1"><span>التاريخ:</span><span
+                                                class="font-semibold">01/04/2026</span></div>
+                                        <div class="flex justify-between px-1"><span>الإسقاط:</span><span
+                                                class="font-semibold">WGS 1984 36N</span></div>
+                                        <div class="flex justify-between px-1"><span>رقم اللوحة:</span><span
+                                                class="font-bold font-serif text-xs text-blue-700">A-142</span></div>
                                     </div>
-                                    <span class="absolute top-2 left-2 p-1.5 bg-gray-200 text-gray-700 rounded-full text-[10px] opacity-0 group-hover/credits:opacity-100 transition shadow"><i class="fa-solid fa-pen"></i></span>
+                                    <span
+                                        class="absolute top-2 left-2 p-1.5 bg-gray-200 text-gray-700 rounded-full text-[10px] opacity-0 group-hover/credits:opacity-100 transition shadow"><i
+                                            class="fa-solid fa-pen"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -701,116 +949,274 @@
                 </div>
 
                 <!-- إعدادات الخصائص (Properties Panel) -->
-                <div class="w-full lg:w-72 glass-panel rounded-3xl p-5 flex flex-col shadow-lg border-white/60 z-10 shrink-0 h-full overflow-y-auto no-scrollbar relative">
-                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-4"><i class="fa-solid fa-sliders ml-2 text-blue-500"></i>خصائص العنصر المحدد</h3>
-                    
+                <div
+                    class="w-full lg:w-72 glass-panel rounded-3xl p-5 flex flex-col shadow-lg border-white/60 z-10 shrink-0 h-full overflow-y-auto no-scrollbar relative">
+                    <h3 class="font-bold text-gray-800 border-b border-gray-200/60 pb-2 mb-4"><i
+                            class="fa-solid fa-sliders ml-2 text-blue-500"></i>خصائص العنصر المحدد</h3>
+
                     <!-- إعدادات وهمية لسهم الشمال كمثال -->
                     <div id="propNorthArrow" class="animate__animated animate__fadeIn">
-                        <div class="bg-orange-50/50 border border-orange-200 p-2 rounded-lg mb-4 flex items-center text-sm font-semibold text-orange-800">
+                        <div
+                            class="bg-orange-50/50 border border-orange-200 p-2 rounded-lg mb-4 flex items-center text-sm font-semibold text-orange-800">
                             <i class="fa-solid fa-compass ml-2 text-orange-500 text-lg"></i> سهم الشمال (North Arrow)
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-gray-700 mb-2">اختر النمط البصري:</label>
                             <div class="grid grid-cols-3 gap-2">
-                                <button class="p-3 border-2 border-orange-500 rounded-xl bg-orange-50 flex justify-center text-gray-800 shadow-sm"><i class="fa-solid fa-arrow-up-long text-3xl object-contain drop-shadow"></i></button>
-                                <button class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i class="fa-solid fa-location-arrow text-3xl object-contain drop-shadow-sm transform -rotate-45"></i></button>
-                                <button class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i class="fa-regular fa-compass text-3xl object-contain drop-shadow-sm"></i></button>
-                                <button class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i class="fa-brands fa-waze text-3xl object-contain drop-shadow-sm"></i></button>
-                                <button class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700 font-serif font-black text-2xl">N</button>
-                                <button class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center items-center text-xs text-blue-500 font-bold bg-gray-50/50">+ المزيد</button>
+                                <button
+                                    class="p-3 border-2 border-orange-500 rounded-xl bg-orange-50 flex justify-center text-gray-800 shadow-sm"><i
+                                        class="fa-solid fa-arrow-up-long text-3xl object-contain drop-shadow"></i></button>
+                                <button
+                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i
+                                        class="fa-solid fa-location-arrow text-3xl object-contain drop-shadow-sm transform -rotate-45"></i></button>
+                                <button
+                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i
+                                        class="fa-regular fa-compass text-3xl object-contain drop-shadow-sm"></i></button>
+                                <button
+                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700"><i
+                                        class="fa-brands fa-waze text-3xl object-contain drop-shadow-sm"></i></button>
+                                <button
+                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center text-gray-700 font-serif font-black text-2xl">N</button>
+                                <button
+                                    class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-center items-center text-xs text-blue-500 font-bold bg-gray-50/50">+
+                                    المزيد</button>
                             </div>
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-gray-700 mb-2">اللون الأساسي:</label>
                             <div class="flex items-center gap-3">
-                                <input type="color" value="#1f2937" class="w-10 h-10 rounded-lg cursor-pointer border-2 border-gray-300 shadow-sm p-0 rounded-full overflow-hidden">
-                                <span class="font-mono text-xs text-gray-500 border border-gray-200 p-1.5 rounded-lg bg-white">#1F2937</span>
+                                <input type="color" value="#1f2937"
+                                    class="w-10 h-10 rounded-lg cursor-pointer border-2 border-gray-300 shadow-sm p-0 rounded-full overflow-hidden">
+                                <span
+                                    class="font-mono text-xs text-gray-500 border border-gray-200 p-1.5 rounded-lg bg-white">#1F2937</span>
                             </div>
                         </div>
-                        
+
                         <div class="mb-5">
                             <div class="flex justify-between items-center mb-2">
                                 <label class="block text-sm font-bold text-gray-700">الحجم الكلي:</label>
-                                <span class="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">85%</span>
+                                <span
+                                    class="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">85%</span>
                             </div>
-                            <input type="range" min="10" max="100" value="85" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500">
+                            <input type="range" min="10" max="100" value="85"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500">
                         </div>
-                        
+
                         <div class="mb-4">
                             <label class="block text-sm font-bold text-gray-700 mb-2">زاوية الدوران (Rotation):</label>
                             <div class="flex items-center gap-2">
-                                <input type="number" value="0" class="w-20 border border-gray-300 rounded-lg p-2 text-center font-bold text-gray-700 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm">
+                                <input type="number" value="0"
+                                    class="w-20 border border-gray-300 rounded-lg p-2 text-center font-bold text-gray-700 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm">
                                 <span class="text-sm font-bold text-gray-500">درجة</span>
-                                <button class="ml-auto w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition"><i class="fa-solid fa-rotate-right"></i></button>
+                                <button
+                                    class="ml-auto w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition"><i
+                                        class="fa-solid fa-rotate-right"></i></button>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- أزرار الحفظ/التعديل السفلية -->
                     <div class="mt-auto border-t border-gray-200/60 pt-4 flex gap-3">
-                        <button class="flex-grow bg-blue-600 text-white hover:bg-blue-700 font-bold py-3 rounded-xl transition-colors text-sm shadow-md hover:shadow-lg"><i class="fa-solid fa-check ml-2"></i>تطبيق التغييرات</button>
-                        <button class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 py-3 rounded-xl transition-colors text-sm border border-red-200 hover:border-transparent flex items-center justify-center group"><i class="fa-solid fa-trash-can group-hover:scale-110 transition-transform"></i></button>
+                        <button
+                            class="flex-grow bg-blue-600 text-white hover:bg-blue-700 font-bold py-3 rounded-xl transition-colors text-sm shadow-md hover:shadow-lg"><i
+                                class="fa-solid fa-check ml-2"></i>تطبيق التغييرات</button>
+                        <button
+                            class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 py-3 rounded-xl transition-colors text-sm border border-red-200 hover:border-transparent flex items-center justify-center group"><i
+                                class="fa-solid fa-trash-can group-hover:scale-110 transition-transform"></i></button>
                     </div>
                 </div>
 
             </div>
         </div>
 
-        <!-- ================= الصفحة الخامسة: الشخصيات ================= -->
+        <!-- ================= الصفحة الخامسة: الشخصيات (Geospatial Stats Dashboard) ================= -->
         <div id="personas" class="page">
-            <section class="mb-10">
-                <div class="text-center mb-12">
-                    <div class="w-16 h-16 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 text-orange-500 shadow-md hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-users text-3xl"></i>
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-800">شخصيات المستخدمين</h2>
-                 </div>
+            <div id="p-root">
+                <div class="app-container animate-fade-in">
+                    <!-- Sidebar -->
+                    <aside class="sidebar delay-100">
+                        <div class="sidebar-tabs">
+                            <button class="tab-btn active" data-tab="tab-data" style="flex:1.5;">
+                                <i data-lucide="database"></i>
+                                <span>البيانات والإعدادات</span>
+                            </button>
+                            <button class="tab-btn" data-tab="tab-analysis" style="flex:1;">
+                                <i data-lucide="pie-chart"></i>
+                                <span>التحليل</span>
+                            </button>
+                            <button class="tab-btn" data-tab="tab-results" style="flex:1;">
+                                <i data-lucide="list"></i>
+                                <span>النتائج</span>
+                            </button>
+                        </div>
 
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 shadow-lg">
-                         <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl group-hover:bg-blue-400/40 group-hover:scale-150 transition-all duration-700"></div>
-                         
-                         <div class="flex items-center mb-6 relative z-10">
-                             <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&h=150&q=80" alt="سارة" class="w-24 h-24 rounded-full object-cover border-4 border-white/50 shadow-md">
-                             <div class="mr-5">
-                                 <h3 class="text-2xl font-bold text-gray-800">سارة أحمد</h3>
-                                 <p class="text-base text-blue-600 font-semibold mb-1">مديرة مشاريع</p>
-                             </div>
-                         </div>
-                     </div>
+                        <div class="sidebar-content">
+                            <!-- Tab: Data -->
+                            <div id="tab-data" class="tab-pane active">
+                                <span class="section-label">إعدادات الحقول</span>
+                                <div class="control-group"
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div class="field-item">
+                                        <span style="font-size: 0.7rem; color: var(--p-text-muted);">كود الزون:</span>
+                                        <input type="text" id="zoneField" value="zone_code"
+                                            style="width:100%; font-size:0.8rem; padding:4px;" />
+                                    </div>
+                                    <div class="field-item">
+                                        <span style="font-size: 0.7rem; color: var(--p-text-muted);">حالة المبنى:</span>
+                                        <input type="text" id="buildingStatusField" value="buildingworkerstatus"
+                                            style="width:100%; font-size:0.8rem; padding:4px;" />
+                                    </div>
+                                </div>
 
-                     <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 shadow-lg">
-                         <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-green-400/20 rounded-full blur-2xl group-hover:bg-green-400/40 group-hover:scale-150 transition-all duration-700"></div>
+                                <span class="section-label">ملفات المناطق</span>
+                                <div class="control-group">
+                                    <div class="upload-box">
+                                        <input type="file" id="zonesFile" accept=".geojson" />
+                                    </div>
+                                </div>
 
-                         <div class="flex items-center mb-6 relative z-10">
-                             <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80" alt="خالد" class="w-24 h-24 rounded-full object-cover border-4 border-white/50 shadow-md">
-                             <div class="mr-5">
-                                 <h3 class="text-2xl font-bold text-gray-800">خالد عبدالله</h3>
-                                 <p class="text-base text-green-600 font-semibold mb-1">محلل بيانات</p>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-            </section>
+                                <span class="section-label">ملفات المباني</span>
+                                <div class="control-group">
+                                    <input type="file" id="buildingsFile" multiple accept=".geojson,.json"
+                                        class="file-input">
+                                    <div style="margin-top:12px; display:flex; gap:8px;">
+                                        <input type="text" id="esriUrl" placeholder="ArcGIS URL..."
+                                            class="flex-1 px-2 py-1 rounded border border-gray-300 text-sm">
+                                        <button id="addEsriBtn" class="btn-icon" title="إضافة"><i
+                                                data-lucide="plus"></i></button>
+                                    </div>
+                                    <div id="buildingLayersList" class="layers-list"></div>
+                                    <div id="targetedActions" style="margin-top:12px; display:none;">
+                                        <button id="loadAllForZonesBtn" class="btn-secondary"
+                                            style="width:100%; font-size:0.8rem;">
+                                            <i data-lucide="crosshair"></i> تحميل مباني المناطق
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <span class="section-label">تصدير البيانات</span>
+                                <div class="btn-row" style="display: flex; gap: 8px;">
+                                    <button id="exportGeojsonBtn" class="btn-secondary" style="flex:1"
+                                        disabled>GEO</button>
+                                    <button id="exportCsvBtn" class="btn-secondary" style="flex:1" disabled>CSV</button>
+                                </div>
+                            </div>
+
+                            <!-- Tab: Analysis -->
+                            <div id="tab-analysis" class="tab-pane">
+                                <span class="section-label">تصفية النتائج</span>
+                                <div class="control-group">
+                                    <div id="statusLegend" class="legend-grid">
+                                        <label class="legend-item"><input type="checkbox" checked
+                                                data-status="تمت اعمال الحصر بالكامل"><span class="dot"
+                                                style="background:#22c55e"></span> مكتمل</label>
+                                        <label class="legend-item"><input type="checkbox" checked
+                                                data-status="حصر جزئي"><span class="dot"
+                                                style="background:#0ea5e9"></span> جزئي</label>
+                                        <label class="legend-item"><input type="checkbox" checked
+                                                data-status="لم يتم زيارته"><span class="dot"
+                                                style="background:#eab308"></span> لم يزار</label>
+                                        <label class="legend-item"><input type="checkbox" checked
+                                                data-status="رفض الحصر"><span class="dot"
+                                                style="background:#334155"></span> مرفوض</label>
+                                        <label class="legend-item"><input type="checkbox" checked
+                                                data-status="إنتظار قرار اللجنة الفنية"><span class="dot"
+                                                style="background:#ef4444"></span> لجنة</label>
+                                    </div>
+                                </div>
+
+                                <span class="section-label">العمليات</span>
+                                <div class="control-group actions">
+                                    <button id="analyzeBtn" class="btn-primary">
+                                        <i data-lucide="play-circle"></i> بدء التحليل
+                                    </button>
+                                    <div class="progress-container">
+                                        <div id="progressBar" class="progress-bar"></div>
+                                    </div>
+                                    <p id="statusText" class="status-msg">جاهز</p>
+                                </div>
+
+                                <div class="chart-container" style="height: 200px; margin-top: 15px;">
+                                    <canvas id="summaryChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Tab: Results -->
+                            <div id="tab-results" class="tab-pane">
+                                <div class="panel-header" style="margin-bottom: 15px;">
+                                    <span class="section-label" style="display:block; margin-bottom:10px;">نتائج الحصر
+                                        التفصيلية</span>
+                                    <div class="search-box">
+                                        <i data-lucide="search"></i>
+                                        <input type="text" id="tableSearch" placeholder="بحث كود الزون..." />
+                                    </div>
+                                </div>
+                                <div id="cardsGrid" class="cards-grid">
+                                    <div class="muted-info">قم ببدء التحليل من تبويب "البيانات" أولاً</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </aside>
+
+                    <!-- Main Content -->
+                    <main class="main-content delay-200">
+                        <header class="top-nav">
+                            <div class="nav-left">
+                                <h1 style="font-size: 1.1rem; font-weight: 700;">لوحة المتابعة الجغرافية</h1>
+                            </div>
+                            <div class="nav-right">
+                                <!-- Theme syncs with main app -->
+                            </div>
+                        </header>
+
+                        <div class="dashboard-header">
+                            <div id="summary" class="summary-widgets">
+                                <div class="muted" style="font-size: 0.85rem; color: var(--p-text-muted);">بانتظار
+                                    البيانات لبدء العرض...</div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-grid full-map">
+                            <!-- Map View -->
+                            <div class="map-card card-glass">
+                                <div id="p-map"></div>
+                                <div class="map-controls">
+                                    <button id="satelliteToggle" class="map-btn" title="تبديل القمر الصناعي">
+                                        <i data-lucide="globe"></i>
+                                    </button>
+                                </div>
+                                <div id="zoneDetailsContainer" class="zone-details-overlay" style="display:none">
+                                    <button class="close-overlay"
+                                        onclick="this.parentElement.style.display='none'">&times;</button>
+                                    <div id="zoneDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+            </div>
         </div>
 
         <!-- ================= الصفحة السادسة: إدارة المستخدمين ================= -->
         <div id="users" class="page">
             <section class="max-w-6xl mx-auto">
-                <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 animate-fade-in delay-100">
                     <div>
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">إدارة المستخدمين</h2>
                         <p class="text-gray-500 font-medium">التحكم في صلاحيات الوصول والحسابات النشطة</p>
                     </div>
-                    <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 self-start md:self-center">
+                    <button id="addUserBtn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 self-start md:self-center">
                         <i class="fa-solid fa-user-plus"></i>
                         <span>إضافة مستخدم جديد</span>
                     </button>
                 </div>
 
-                <div class="glass-panel rounded-3xl overflow-hidden shadow-xl border-white/60">
+                <div class="glass-panel rounded-3xl overflow-hidden shadow-xl border-white/60 animate-fade-in delay-200">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right border-collapse">
                             <thead>
@@ -840,50 +1246,60 @@
         <!-- مودال إضافة/تعديل مستخدم -->
         <div id="userModal" class="fixed inset-0 z-[10000] hidden flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="closeUserModal"></div>
-            <div class="bg-white/90 backdrop-blur-2xl w-full max-w-lg rounded-[40px] shadow-2xl relative z-10 overflow-hidden border border-white/40 animate__animated animate__zoomIn animate__faster">
+            <div
+                class="bg-white/90 backdrop-blur-2xl w-full max-w-lg rounded-[40px] shadow-2xl relative z-10 overflow-hidden border border-white/40 animate__animated animate__zoomIn animate__faster">
                 <div class="p-8 border-b border-gray-100 mb-2">
                     <h3 id="userModalTitle" class="text-2xl font-bold text-gray-800">إضافة مستخدم جديد</h3>
                 </div>
-                
+
                 <form id="userForm" class="p-8 space-y-5">
                     <div class="grid grid-cols-1 gap-5">
-                        <div>
-                            <label class="block text-gray-700 font-bold mb-2 mr-1">الاسم الكامل</label>
-                            <input type="text" id="userName" required class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 mr-1">الاسم الكامل</label>
+                                <input type="text" id="userName" required
+                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 mr-1">اسم المستخدم</label>
+                                <input type="text" id="userUsername" required placeholder="User123"
+                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-gray-700 font-bold mb-2 mr-1">البريد الإلكتروني</label>
-                            <input type="email" id="userEmail" required class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right">
+                            <input type="email" id="userEmail" required
+                                class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium ltr text-right">
                         </div>
                         <div>
                             <label class="block text-gray-700 font-bold mb-2 mr-1">كلمة المرور</label>
-                            <input type="password" id="userPassword" placeholder="••••••••" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                            <input type="password" id="userPassword" placeholder="••••••••"
+                                class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2 mr-1">الدور</label>
-                                <select id="userRole" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                <select id="userRole"
+                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                                     <option value="viewer">مراقب (Viewer)</option>
                                     <option value="admin">مدير (Admin)</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2 mr-1">المجال المكاني</label>
-                                <select id="userGov" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                                    <option value="all">كل المحافظات</option>
-                                    <option value="شمال غزة">شمال غزة</option>
-                                    <option value="غزة">غزة</option>
-                                    <option value="الوسطى">الوسطى</option>
-                                    <option value="خانيونس">خانيونس</option>
-                                    <option value="رفح">رفح</option>
-                                </select>
+                                <input type="text" id="userGov" value="all" placeholder="all أو غزة، شمال غزة"
+                                    class="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                <p class="text-xs text-gray-500 mt-2">اكتب all أو محافظة واحدة أو عدة محافظات مفصولة بفاصلة.</p>
                             </div>
                         </div>
-                        <div class="flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                        <div
+                            class="flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
                             <span class="font-bold text-gray-700">حالة الحساب</span>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="userActive" class="sr-only peer" checked>
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-blue-600">
+                                </div>
                             </label>
                         </div>
                     </div>
@@ -893,60 +1309,95 @@
                         <h4 class="text-lg font-extrabold text-blue-800 flex items-center gap-2">
                             <i class="fa-solid fa-shield-halved"></i> الصلاحيات التفصيلية
                         </h4>
-                        
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                             <!-- ظهور الصفحات -->
                             <div class="space-y-2">
-                                <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">ظهور الصفحات</p>
+                                <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">ظهور الصفحات
+                                </p>
                                 <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showHome" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                                    <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الرئيسية والخريطة</span>
+                                    <input type="checkbox" id="perm_showHome"
+                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        checked>
+                                    <span
+                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الرئيسية
+                                        والخريطة</span>
                                 </label>
                                 <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showStats" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                                    <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الإحصائيات</span>
+                                    <input type="checkbox" id="perm_showStats"
+                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        checked>
+                                    <span
+                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الإحصائيات</span>
                                 </label>
                                 <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showFlow" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                                    <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">العرض والشرح</span>
+                                    <input type="checkbox" id="perm_showFlow"
+                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        checked>
+                                    <span
+                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">العرض
+                                        والشرح</span>
                                 </label>
                                 <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showStyle" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                                    <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الهوية</span>
+                                    <input type="checkbox" id="perm_showStyle"
+                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        checked>
+                                    <span
+                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الهوية</span>
                                 </label>
                                 <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="perm_showPersonas" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                                    <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الشخصيات</span>
+                                    <input type="checkbox" id="perm_showPersonas"
+                                        class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        checked>
+                                    <span
+                                        class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">الشخصيات</span>
                                 </label>
                             </div>
 
                             <!-- صلاحيات الخريطة والبيانات -->
                             <div class="space-y-4">
                                 <div>
-                                    <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">الخريطة والبيانات</p>
+                                    <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">الخريطة
+                                        والبيانات</p>
                                     <label class="flex items-center gap-3 cursor-pointer group mb-2">
-                                        <input type="checkbox" id="perm_canDraw" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">رسم مساحات جديدة</span>
+                                        <input type="checkbox" id="perm_canDraw"
+                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span
+                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">رسم
+                                            مساحات جديدة</span>
                                     </label>
                                     <label class="flex items-center gap-3 cursor-pointer group mb-2">
-                                        <input type="checkbox" id="perm_canEditData" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تعديل بيانات الحصر (الأعداد)</span>
+                                        <input type="checkbox" id="perm_canEditData"
+                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span
+                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تعديل
+                                            بيانات الحصر (الأعداد)</span>
                                     </label>
                                     <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" id="perm_canEditStatus" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تغيير حالة الإنجاز</span>
+                                        <input type="checkbox" id="perm_canEditStatus"
+                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span
+                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تغيير
+                                            حالة الإنجاز</span>
                                     </label>
                                 </div>
-                                
+
                                 <div>
-                                    <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">الأدوات النظامية</p>
+                                    <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">الأدوات
+                                        النظامية</p>
                                     <label class="flex items-center gap-3 cursor-pointer group mb-2">
-                                        <input type="checkbox" id="perm_canExport" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تصدير التقارير (PDF/Excel)</span>
+                                        <input type="checkbox" id="perm_canExport"
+                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span
+                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">تصدير
+                                            التقارير (PDF/Excel)</span>
                                     </label>
                                     <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" id="perm_canManageUsers" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">إدارة حسابات المستخدمين</span>
+                                        <input type="checkbox" id="perm_canManageUsers"
+                                            class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span
+                                            class="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">إدارة
+                                            حسابات المستخدمين</span>
                                     </label>
                                 </div>
                             </div>
@@ -954,8 +1405,11 @@
                     </div>
 
                     <div class="flex gap-4 pt-6">
-                        <button type="submit" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">حفظ البيانات</button>
-                        <button type="button" id="cancelUserBtn" class="px-8 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all">إلغاء</button>
+                        <button type="submit"
+                            class="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">حفظ
+                            البيانات</button>
+                        <button type="button" id="cancelUserBtn"
+                            class="px-8 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all">إلغاء</button>
                     </div>
                 </form>
             </div>
@@ -978,7 +1432,12 @@
             }
 
             window.addEventListener('load', function () {
-                setTimeout(forceHideLoader, 4000);
+                // تفعيل شريط التقدم فور التحميل
+                const pBar = document.getElementById('loaderProgress');
+                if(pBar) setTimeout(() => pBar.style.width = '100%', 100);
+                
+                // الإخفاء النهائي بعد 3.5 ثانية
+                setTimeout(forceHideLoader, 3500);
             });
         })();
     </script>
@@ -988,5 +1447,211 @@
 
     <!-- الأكواد البرمجية للوظائف والحركة والرسوم البيانية -->
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/personas-logic.js?v=5"></script>
+
+    <!-- وظائف صفحة الإحصاء التحليلي -->
+    <script>
+        // ======= استيراد بيانات GeoJSON / Shapefile =======
+        window.analyticsData = null;
+
+        // إظهار/إخفاء الشريط العائم مع تبديل الصفحات
+        const origSwitchPage = window.switchPage;
+        document.addEventListener('DOMContentLoaded', () => {
+            const fab = document.getElementById('analyticsFab');
+            // مراقبة تغيير الصفحة
+            const observer = new MutationObserver(() => {
+                const isProcess = document.getElementById('process')?.classList.contains('active');
+                if (fab) fab.style.display = isProcess ? 'flex' : 'none';
+                if (!isProcess) {
+                    document.querySelectorAll('.analytics-slide-panel').forEach(p => p.classList.remove('panel-open'));
+                    document.querySelectorAll('.fab-icon-btn').forEach(b => b.classList.remove('active-fab'));
+                }
+            });
+            observer.observe(document.getElementById('process') || document.body, { attributes: true, attributeFilter: ['class'] });
+        });
+
+        function toggleAnalyticsPanel(type) {
+            const panels = { data: 'analyticsPanelData', ai: 'analyticsPanelAi' };
+            const btns   = { data: 'fabDataBtn', ai: 'fabAiBtn' };
+            const panel  = document.getElementById(panels[type]);
+            const btn    = document.getElementById(btns[type]);
+            const isOpen = panel.classList.contains('panel-open');
+
+            // أغلق الكل أولاً
+            document.querySelectorAll('.analytics-slide-panel').forEach(p => p.classList.remove('panel-open'));
+            document.querySelectorAll('.fab-icon-btn').forEach(b => b.classList.remove('active-fab'));
+
+            // افتح المطلوب إذا كان مغلقاً
+            if (!isOpen) {
+                panel.classList.add('panel-open');
+                btn.classList.add('active-fab');
+            }
+        }
+
+        function handleAnalyticsFile(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+            const status = document.getElementById('analyticsFileStatus');
+            const nameEl = document.getElementById('analyticsFileName');
+            nameEl.textContent = `${file.name} — جاري المعالجة...`;
+            status.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    if (type === 'geojson') {
+                        window.analyticsData = JSON.parse(e.target.result);
+                        nameEl.textContent = `✔ ${file.name} — ${window.analyticsData.features?.length || 0} عنصر مكاني`;
+                        generateAnalyticsFromData(window.analyticsData);
+                    } else if (type === 'shapefile') {
+                        nameEl.textContent = `${file.name} — يتطلب مكتبة shpjs لمعالجة Shapefile`;
+                    }
+                } catch(err) {
+                    nameEl.textContent = `⚠ خطأ في قراءة الملف: ${err.message}`;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function handleAnalyticsUrl() {
+            const url = document.getElementById('analyticsUrl').value.trim();
+            if (!url) return;
+            const status = document.getElementById('analyticsFileStatus');
+            const nameEl = document.getElementById('analyticsFileName');
+            status.classList.remove('hidden');
+            nameEl.textContent = 'جاري جلب البيانات من الرابط...';
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    window.analyticsData = data;
+                    nameEl.textContent = `✔ تم جلب البيانات — ${data.features?.length || 0} عنصر`;
+                    generateAnalyticsFromData(data);
+                })
+                .catch(err => {
+                    nameEl.textContent = `⚠ تعذر جلب البيانات (تحقق من CORS): ${err.message}`;
+                });
+        }
+
+        function clearAnalyticsData() {
+            window.analyticsData = null;
+            document.getElementById('analyticsFileStatus').classList.add('hidden');
+            document.getElementById('analyticsGeoJSON').value = '';
+            document.getElementById('analyticsShapefile').value = '';
+            document.getElementById('analyticsUrl').value = '';
+        }
+
+        function generateAnalyticsFromData(geojson) {
+            const features = geojson.features || [];
+            appendAiMessage('bot', `تم تحليل الملف: يحتوي على <strong>${features.length}</strong> عنصر مكاني. يمكنني الآن الإجابة على أسئلتك حول هذه البيانات.`);
+        }
+
+        // ======= مساعد الذكاء الاصطناعي =======
+        function sendAiMessage() {
+            const input = document.getElementById('aiChatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            appendAiMessage('user', msg);
+            input.value = '';
+            // placeholder response — يُستبدل بـ API حقيقي لاحقاً
+            setTimeout(() => {
+                if (!window.analyticsData) {
+                    appendAiMessage('bot', 'يرجى تحميل ملف بيانات أولاً حتى أتمكن من تحليله والإجابة على أسئلتك.');
+                } else {
+                    appendAiMessage('bot', 'هذه الميزة تتطلب ربط مفتاح API (Google Gemini أو OpenAI). يرجى إضافة المفتاح في إعدادات النظام.');
+                }
+            }, 600);
+        }
+
+        function appendAiMessage(role, html) {
+            const box = document.getElementById('aiChatBox');
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `<div class="${role === 'user'
+                ? 'bg-blue-500 text-white rounded-2xl rounded-tr-sm'
+                : 'bg-purple-100 text-purple-800 rounded-2xl rounded-tl-sm'} px-4 py-2 text-sm font-medium max-w-[85%]">
+                ${role === 'bot' ? '<i class="fa-solid fa-robot ml-1 text-xs"></i>' : ''}${html}</div>`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+    <!-- شريط أدوات الإحصاء العائم (خارج صفحة process لأنها fixed) -->
+    <div id="analyticsFab" class="analytics-fab" style="display:none;">
+        <button onclick="toggleAnalyticsPanel('data')" id="fabDataBtn" class="fab-icon-btn" title="مصادر البيانات">
+            <i class="fa-solid fa-database"></i>
+            <span class="fab-tooltip">مصادر البيانات</span>
+        </button>
+        <button onclick="toggleAnalyticsPanel('ai')" id="fabAiBtn" class="fab-icon-btn" title="المساعد الذكي">
+            <i class="fa-solid fa-robot"></i>
+            <span class="fab-tooltip">المساعد الذكي</span>
+        </button>
+    </div>
+
+    <!-- لوحة مصادر البيانات (body level) -->
+    <div id="analyticsPanelData" class="analytics-slide-panel">
+        <div class="analytics-panel-header">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-database text-blue-500"></i> مصادر البيانات</span>
+            <button onclick="toggleAnalyticsPanel('data')" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="flex flex-col gap-3 p-4">
+            <label class="group cursor-pointer">
+                <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-50/40 transition-all">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-code text-blue-500"></i>
+                    </div>
+                    <div class="flex-1"><p class="font-bold text-gray-700 text-sm">ملف GeoJSON</p><p class="text-xs text-gray-400">اضغط للرفع</p></div>
+                    <i class="fa-solid fa-upload text-blue-300 text-xs"></i>
+                    <input type="file" accept=".geojson,.json" id="analyticsGeoJSON" class="hidden" onchange="handleAnalyticsFile(this, 'geojson')">
+                </div>
+            </label>
+            <label class="group cursor-pointer">
+                <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-purple-200 hover:border-purple-400 hover:bg-purple-50/40 transition-all">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-zipper text-purple-500"></i>
+                    </div>
+                    <div class="flex-1"><p class="font-bold text-gray-700 text-sm">Shapefile (.zip)</p><p class="text-xs text-gray-400">اضغط للرفع</p></div>
+                    <i class="fa-solid fa-upload text-purple-300 text-xs"></i>
+                    <input type="file" accept=".zip" id="analyticsShapefile" class="hidden" onchange="handleAnalyticsFile(this, 'shapefile')">
+                </div>
+            </label>
+            <div class="flex flex-col gap-2 p-3 rounded-xl border-2 border-dashed border-emerald-200">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0"><i class="fa-solid fa-link text-emerald-500"></i></div>
+                    <div><p class="font-bold text-gray-700 text-sm">رابط خارجي</p><p class="text-xs text-gray-400">ArcGIS / URL</p></div>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="analyticsUrl" placeholder="https://..." class="flex-1 px-3 py-2 rounded-lg bg-white/60 border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <button onclick="handleAnalyticsUrl()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"><i class="fa-solid fa-arrow-down"></i></button>
+                </div>
+            </div>
+            <div id="analyticsFileStatus" class="hidden flex items-center gap-2 bg-blue-50 rounded-xl px-3 py-2 border border-blue-100">
+                <i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>
+                <span class="text-xs font-bold text-blue-700 flex-1" id="analyticsFileName">جاري التحليل...</span>
+                <button onclick="clearAnalyticsData()" class="text-red-400 hover:text-red-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة الذكاء الاصطناعي (body level) -->
+    <div id="analyticsPanelAi" class="analytics-slide-panel">
+        <div class="analytics-panel-header">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-robot text-purple-500"></i> المساعد الذكي</span>
+            <button onclick="toggleAnalyticsPanel('ai')" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="flex flex-col gap-3 p-4">
+            <div id="aiChatBox" class="bg-white/40 rounded-xl p-3 overflow-y-auto flex flex-col gap-2 border border-gray-100 min-h-[200px] max-h-[320px]">
+                <div class="flex justify-start">
+                    <div class="bg-purple-100 text-purple-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs font-medium max-w-[90%]">
+                        <i class="fa-solid fa-robot ml-1 text-xs"></i> مرحباً! حمّل ملف بيانات أو اسألني ما تريد.
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="aiChatInput" placeholder="اسأل عن الإحصاءات..." class="flex-1 px-3 py-2 rounded-xl bg-white/60 border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-purple-400" onkeydown="if(event.key==='Enter') sendAiMessage()">
+                <button onclick="sendAiMessage()" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl text-sm transition-all hover:shadow-md"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>
